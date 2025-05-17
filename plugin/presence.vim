@@ -1,7 +1,6 @@
 " Save global marks to the obsession-file.
 function! s:save_global_marks() abort
   let l:marked_files = {}
-  let l:ordered_files = []
   for l:mark_item in getmarklist()
     let l:mark = l:mark_item.mark
     if l:mark !~# "^'[A-Z]$"
@@ -24,18 +23,14 @@ function! s:save_global_marks() abort
       " create a new list of marks, for a newly discovered marked file
       let l:list = []
       let l:marked_files[l:file] = l:list
-      call add(l:list, "badd +" . l:lnum . " " . fnameescape(l:file)) " add file to buffer-list
-      call add(l:list, "keepjumps buffer " . fnameescape(l:file)) " edit file
-      call add(l:ordered_files, l:file) " keep order of discovered files
+      call add(l:list, "let s:bufnum = bufnr(\"" . fnameescape(l:file) . "\", v:true)") " get buffer number
     endif
-    call add(l:list, "call setcursorcharpos(" . l:lnum . ", " . l:column . ")") " go to cursor position
-    call add(l:list, "normal! m" . l:mark) " set mark
+    call add(l:list, "call setpos(\"'" . l:mark . "\", [s:bufnum, " . l:lnum . ", " . l:column . ", 0])") " set mark
   endfor
 
   let l:lines = []
   call add(l:lines, "delmarks A-Z") " delete marks in the range A to Z
-  for l:file in l:ordered_files
-    let l:list = l:marked_files[l:file]
+  for [l:file, l:list] in items(l:marked_files)
     call add(l:lines, l:list)
     let l:bufnr = bufnr(l:file)
     if bufloaded(l:bufnr)
@@ -58,7 +53,7 @@ function! s:save_global_marks() abort
   call writefile(l:body, g:this_obsession)
 endfunction
 
-augroup my_obsession
+augroup presence
   autocmd!
   autocmd User Obsession call s:save_global_marks()
 augroup END
