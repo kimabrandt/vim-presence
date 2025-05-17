@@ -32,23 +32,12 @@ local function list_sessions(opts)
           actions.close(prompt_bufnr)
 
           vim.schedule(function()
-            -- Check if obsession is tracking a session.
-            local exists, _ = pcall(vim.api.nvim_get_var, "this_obsession")
-            if exists then
-              vim.cmd("silent! Obsession") -- pause obsession
-            end
-
-            local ok, err = pcall(function()
-              -- Close all buffers.
-              vim.cmd("%bdelete")
-            end)
-
-            if ok then
+            -- Unload and delete all buffers.
+            local success = vim.fn["presence#delete_all_buffers"]()
+            if success == 1 then
               -- Load the session.
               local selection = action_state.get_selected_entry()
               vim.cmd("silent! source " .. vim.fn.fnameescape(selection.value))
-            elseif err then
-              print(err)
             end
           end)
         end)

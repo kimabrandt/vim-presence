@@ -4,12 +4,10 @@
 "   let g:presence_clear = 0            " Don't clear the marks - from the `g:presence_marks'-list - before restoring them.
 "   let g:presence_clear = 1            " Clear the marks - from the `g:presence_marks'-list - before restoring them.
 
-
 " Gets a list of supported global marks.
 function s:get_global_marks() abort
   return split(get(g:, 'presence_marks', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '\zs')
 endfunction
-
 
 " Saves global marks to the session-file.
 function s:save_global_marks(session_file) abort
@@ -24,7 +22,7 @@ function s:save_global_marks(session_file) abort
     " Remove the "'"-prefix from the name of the mark.
     let l:mark = substitute(l:marks.mark, "'", "", "")
 
-    " Check if the mark should be respected.
+    " Check if the mark is supported.
     if index(l:global_marks, l:mark) == -1
       " Ignore the mark.
       continue
@@ -95,62 +93,111 @@ augroup presence_save
   autocmd User Obsession call s:save_global_marks(g:this_session)
 augroup END
 
+" Pauses obsessions session-tracking.
+function s:pause_obsession() abort
+  if exists("g:this_obsession")
+    silent! Obsession
+  endif
+endfunction
 
-" Deletes buffers which don't have any global marks.
+" Unloads and deletes the passed in buffers.
+function s:unload_and_delete_buffers(buffers) abort
+  for l:buffer in a:buffers
+    execute 'bdelete ' . l:buffer
+  endfor
+endfunction
+
+" Shows an error.
+function s:show_error(message) abort
+  echohl ErrorMsg
+  echo a:message
+  echohl None
+endfunction
+
+" Checks if the buffer has unsaved changes.
+function s:buffer_was_modified(buffer) abort
+  return getbufvar(a:buffer, '&modified')
+endfunction
+
+" Edits the buffer, and thereby puts it into focus.
+function s:edit_and_show_buffer(buffer) abort
+  execute 'buffer ' . a:buffer
+endfunction
+
+" Checks if the buffer exists and is listed.
+function s:buffer_exists(buffer) abort
+    return buflisted(a:buffer)
+endfunction
+
+" Checks if the buffer has one of the marks.
+function s:buffer_has_marks(buffer, marks) abort
+  " For all the supported marks.
+  for l:mark in a:marks
+    " Get the position of the mark.
+    let pos = getpos("'" . l:mark)
+
+    " Check if the mark points to the buffer.
+    if pos[0] == a:buffer
+      return 1
+    endif
+  endfor
+
+  return 0
+endfunction
+
+" Unloads and deletes all buffers.
+function presence#delete_all_buffers() abort
+  " List of buffers without marks.
+  let l:buffers = []
+
+  " For all opened buffers.
+  for l:buffer in range(1, bufnr('$'))
+    if s:buffer_was_modified(l:buffer)
+      call s:edit_and_show_buffer(l:buffer)
+      call s:show_error('The buffer has unsaved changes')
+      return 0
+    endif
+
+    if s:buffer_exists(l:buffer)
+      " Add the buffer to the list.
+      call add(l:buffers, l:buffer)
+    endif
+  endfor
+
+  call s:pause_obsession()
+  call s:unload_and_delete_buffers(l:buffers)
+
+  return 1
+endfunction
+
+" Unloads and deletes buffers which don't have any global marks.
 function presence#delete_buffers_without_global_marks() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
-  " List with buffers that don't have any marks.
-  let buffers = []
+  " List of buffers without marks.
+  let l:buffers = []
 
-  " For all the opened buffers.
-  for buffer in range(1, bufnr('$'))
-    " Check if the buffer has unsaved changes.
-    if getbufvar(buffer, '&modified')
-      " Edit the buffer, and thereby putting it into focus.
-      execute 'buffer ' . buffer
-
-      " Show an error and return.
-      echohl ErrorMsg
-      echo "The buffer has unsaved changes"
-      echohl None
-      return
-    endif
-
-    " Check if the buffer exists and is listed.
-    if buflisted(buffer)
-      " Assume that there're no marks initially.
-      let has_marks = 0
-
-      " For all the supported marks.
-      for l:mark in l:global_marks
-        " Get the position of the mark.
-        let pos = getpos("'" . l:mark)
-
-        " Check if the mark points to the buffer.
-        if pos[0] == buffer
-          let has_marks = 1
-          break
+  " For all opened buffers.
+  for l:buffer in range(1, bufnr('$'))
+    if s:buffer_exists(l:buffer)
+      if !s:buffer_has_marks(l:buffer, l:global_marks)
+        if s:buffer_was_modified(l:buffer)
+          call s:edit_and_show_buffer(l:buffer)
+          call s:show_error('The buffer has unsaved changes')
+          return 0
         endif
-      endfor
 
-      " Check if no marks - pointing to the buffer - have been found.
-      if has_marks == 0
         " Add the buffer to the list.
-        call add(buffers, buffer)
+        call add(l:buffers, l:buffer)
       endif
     endif
   endfor
 
-  " Check if obsession is tracking a session.
-  if exists("g:this_obsession")
-    " Pause obsession.
-    silent! Obsession
-  endif
+  call s:pause_obsession()
+  call s:unload_and_delete_buffers(l:buffers)
 
-  " Unload and delete the buffers.
-  bufdo bdelete
+  return 1
 endfunction
 
 
