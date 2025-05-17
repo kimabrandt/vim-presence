@@ -1,0 +1,405 @@
+*presence.txt*	Stay focused on the tasks at hand
+
+==============================================================================
+CONTENTS						     *presence-contents*
+
+Introduction ................ |presence-intro|
+Installation ................ |presence-install|
+Quickstart................... |presence-quickstart|
+Configuration ............... |presence-config|
+Usage ....................... |presence-usage|
+Functions ................... |presence-functions|
+License ..................... |presence-license|
+
+==============================================================================
+INTRODUCTION							*presence-intro*
+
+The vim-presence plugin helps you stay focused when switching between files
+and projects.
+
+It works by adding upper case file-marks (global marks) to a |session-file|
+whenever the |obsession| plugin saves a session. The marks are then restored,
+when a session-file is loaded.
+
+Only the global marks listed in the |presence_marks| variable are managed by
+this plugin. This gives you some flexibility in how to use it and integrate it
+into your workflow.
+
+You can load session files as usual using the `-S` parameter when starting
+Vim, or with the `:source` command, after Vim has already started.
+Alternatively, with Neovim, you can use the included
+|presence-sessions-picker|, which first unloads all buffers before loading the
+session - useful when switching between contexts.
+
+There's also a |presence-marks-picker| that lists your global marks in the
+order defined by the |presence_marks| variable.
+
+==============================================================================
+INSTALLATION						      *presence-install*
+
+The vim-presence plugin requires the vim-obsession plugin, so you need to
+install both.
+
+Using vim-pathogen (tpope/vim-pathogen) ~
+
+Clone both repositories into your ~/.vim/bundle directory:
+>sh
+    cd ~/.vim/bundle
+    git clone https://github.com/tpope/vim-obsession.git
+    git clone https://github.com/kimabrandt/vim-presence.git
+<
+Using Vundle.vim (VundleVim/Vundle.vim) ~
+
+Add these Plugin-lines to your init.vim:
+>vim
+    call vundle#begin()
+    Plugin 'tpope/vim-obsession'
+    Plugin 'kimabrandt/vim-presence'
+    call vundle#end()
+<
+Using vim-plug (junegunn/vim-plug) ~
+
+Add these Plug-lines to your init.vim:
+>vim
+    call plug#begin()
+    Plug 'tpope/vim-obsession'
+    Plug 'kimabrandt/vim-presence'
+    call plug#end()
+<
+Using lazy.nvim (folke/lazy.nvim) ~
+
+Add this plugin spec to your init.lua:
+>lua
+    require("lazy").setup({
+        spec = {
+            "tpope/vim-obsession",
+            "kimabrandt/vim-presence"
+        }
+    })
+<
+==============================================================================
+QUICKSTART						   *presence-quickstart*
+
+This section provides a complete configuration example to help you get started
+quickly. The following sections will explain each part in detail.
+
+For Vim ~
+
+Add this to your init.vim:
+>vim
+    call plug#begin()
+    Plug 'tpope/vim-obsession'
+    Plug 'kimabrandt/vim-presence'
+    call plug#end()
+
+    let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
+    let g:presence_clear = 1 " clear the presence_marks
+    nnoremap mm :call presence#add_global_mark_and_shift_backward()<cr>
+    nnoremap me :call presence#add_global_mark_to_the_end_and_replace_last()<cr>
+    nnoremap md :call presence#delete_global_mark_and_shift_forward()<cr>
+    nnoremap <leader><esc> :call presence#delete_buffers_without_global_marks() \| call presence#remove_gaps_in_marks_list()<cr>
+<
+For Neovim ~
+
+Add this to your init.lua:
+>lua
+    require("lazy").setup({
+        spec = {
+            {
+                "kimabrandt/vim-presence",
+                dependencies = {
+                    "tpope/vim-obsession",
+                    "nvim-telescope/telescope.nvim",
+                },
+                config = function()
+                    vim.g.presence_marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
+		    vim.g.presence_clear = 1 -- clear the presence_marks
+
+                    vim.keymap.set("n", "mm", function() -- assign the current text-position to the highest priority mark
+                        vim.cmd("call presence#add_global_mark_and_shift_backward()")
+                    end)
+
+                    vim.keymap.set("n", "me", function() -- assign the current text-position to the lowest priority mark
+                        vim.cmd("call presence#add_global_mark_to_the_end_and_replace_last()")
+                    end)
+
+                    vim.keymap.set("n", "md", function() -- remove the highest priority mark
+                        vim.cmd("call presence#delete_global_mark_and_shift_forward()")
+                    end)
+
+                    vim.keymap.set("n", "<leader><esc>", function() -- clean up buffers and reorder marks-list
+                        vim.cmd([[
+                            call presence#delete_buffers_without_global_marks()
+                            call presence#remove_gaps_in_marks_list()
+                        ]])
+                    end)
+
+                    require("telescope").load_extension("presence")
+
+                    vim.keymap.set("n", "<A-s>", function() -- show the session files (with Telescope)
+                        require("telescope").extensions["presence"].sessions({
+                            sessions_dir = "~/.vim/session"
+                        })
+                    end)
+
+                    vim.keymap.set("n", "<A-m>", function() -- show the list of global marks (with Telescope)
+                        require("telescope").extensions["presence"].marks()
+                    end)
+
+                end,
+            },
+        },
+    })
+<
+==============================================================================
+CONFIGURATION						       *presence-config*
+
+This section describes how to configure vim-presence, to adapt it to your
+needs.
+
+								*presence_marks*
+g:presence_marks ~
+
+This global variable controls which global marks are tracked and saved in a
+session-file, and restored when loading the session-file.
+>vim
+    let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
+<
+By default, all marks (from A to Z) are taken into account. If you set
+`g:presence_marks`, only the specified marks will be handled - any others will
+be ignored.
+
+You can also temporarily override this list using the marks option when
+launching the Marks Picker (see |presence-marks-picker|).
+
+						 *presence_clear* *presence-clear*
+g:presence_clear ~
+
+This global variable tells the plugin to either clear the |presence_marks|
+list before restoring a session or leave it be.
+>vim
+    let g:presence_clear = 0 " don't clear the presence_marks
+    let g:presence_clear = 1 " clear the presence_marks
+<
+==============================================================================
+USAGE								*presence-usage*
+
+This section describes how to manage sessions and marks with examples.
+
+Start a new session ~
+
+In Vim, start tracking your current session:
+>vim
+    :Obsession ~/.vim/session/project-xyz.vim
+<
+This will automatically track files, marks, and more, saving them to the
+session file.
+
+Load a session from the terminal ~
+
+Source a session-file from the command line:
+>sh
+    vim -S ~/.vim/session/project-xyz.vim
+<
+This will open files from the session-file and restore the saved marks.
+
+Load a session from inside Vim ~
+
+Alternatively, source a session-file from inside Vim:
+>vim
+    :source ~/.vim/session/project-xyz.vim
+<
+This works the same as using the `-S` parameter - files and marks will be
+restored.
+
+Load a session with Telescope ~
+
+You can also use the Telescope extension, provided by vim-presence for easy
+session picking:
+>lua
+    require("lazy").setup({
+        spec = {
+            {
+                "kimabrandt/vim-presence",
+                dependencies = {
+                    "tpope/vim-obsession",
+                    "nvim-telescope/telescope.nvim",
+                },
+                config = function()
+                    require("telescope").load_extension("presence")
+                end,
+            },
+        },
+    })
+<
+Open the Sessions picker with a keymap:
+>lua
+    vim.keymap.set("n", "<A-s>", function()
+        require("telescope").extensions["presence"].sessions()
+    end)
+<
+Alternatively, with the command:
+>vim
+    :Telescope presence sessions
+<
+These will open the |presence-sessions-picker|, where you can easily select
+and load saved sessions.
+
+Jump to a global mark ~
+
+You can now jump between files with global marks restored from your session.
+
+A simple and effective way of navigating is to use keymappings that jump to
+the uppercase marks; for example on the home row (using a qwerty-layout):
+
+With Vim:
+>vim
+    nnoremap <A-j> `J
+    nnoremap <A-k> `K
+    nnoremap <A-l> `L
+    " and so on...
+<
+With Neovim:
+>lua
+    vim.keymap.set("n", "<A-j>", "`J")
+    vim.keymap.set("n", "<A-k>", "`K")
+    vim.keymap.set("n", "<A-l>", "`L")
+    -- and so on...
+<
+Hold <Alt> and effortlessly navigate to important locations in your project by
+pressing the respective letter.
+
+Jump to a global mark with Telescope ~
+
+You can also jump to a mark using the provided Telescope extension. Load the
+extension as before and open the Marks picker with a keymap:
+>lua
+    vim.keymap.set("n", "<A-m>", function()
+        require("telescope").extensions["presence"].marks()
+    end)
+<
+Alternatively, with the command:
+>vim
+    :Telescope presence marks
+<
+==============================================================================
+FUNCTIONS						    *presence-functions*
+
+This section describes how to call vim-presence functions with a keymap.
+
+In Vim (Vimscript) ~
+
+Use `:nnoremap` to map a function:
+>vim
+    nnoremap mm :call presence#function_name()<cr>
+<
+In Neovim (Lua) ~
+
+Use |vim.keymap.set()| to map the same function:
+>lua
+    vim.keymap.set("n", "mm", function()
+        vim.cmd("call presence#function_name()")
+    end)
+<
+				 *presence#add_global_mark_and_shift_backward()*
+Add global mark and shift backward ~
+
+The `presence#add_global_mark_and_shift_backward()` function adds a new global
+mark at the current text position and assigns it to the first mark in the
+|presence_marks| list. All existing marks are shifted backward, making room
+for the new mark at the front.
+>vim
+    nnoremap mm :call presence#add_global_mark_and_shift_backward()<cr>
+<
+			*presence#add_global_mark_to_the_end_and_replace_last()*
+Add global mark to the end and replace last ~
+
+The |presence#add_global_mark_to_the_end_and_replace_last()| function adds a
+new global mark at the current text position and assigns it to the first
+available mark from the back of the |presence_marks| list. If all marks are
+already used, the last one is replaced.
+>vim
+    nnoremap me :call presence#add_global_mark_to_the_end_and_replace_last()<cr>
+<
+			       *presence#delete_global_mark_and_shift_forward()*
+Delete global mark and shift forward ~
+
+The |presence#delete_global_mark_and_shift_forward()| function removes the
+first mark in the |presence_marks| list, if present. Remaining marks are
+shifted forward to fill the gap.
+>vim
+    nnoremap md :call presence#delete_global_mark_and_shift_forward()<cr>
+<
+				*presence#delete_buffers_without_global_marks()*
+Delete buffers that don't have global marks ~
+
+The |presence#delete_buffers_without_global_marks()| function unloads all
+buffers that do not have a global mark (from the |presence_marks| list)
+associated with them.
+>vim
+    nnoremap <leader><esc> :call presence#delete_buffers_without_global_marks()<cr>
+<
+					  *presence#remove_gaps_in_marks_list()*
+Remove gaps inside marks-list ~
+
+The |presence#remove_gaps_in_marks_list()| function reorganizes the
+|presence_marks| by removing any empty entries, ensuring a continuous,
+gap-free list of marks.
+>vim
+    nnoremap <leader><esc> :call presence#remove_gaps_in_marks_list()<cr>
+<
+Cleanup buffers and marks-list ~
+
+The |presence#delete_buffers_without_global_marks()| and
+|presence#remove_gaps_in_marks_list()| functions can be combined to clean up
+unused buffers (without global marks) and ensure the |presence_marks| list has
+no gaps.
+>vim
+    nnoremap <leader><esc> :call presence#delete_buffers_without_global_marks() \| call presence#remove_gaps_in_marks_list()<cr>
+<
+Sessions picker ~
+						      *presence-sessions-picker*
+With Neovim, the included Sessions picker shows a list of session-files (see
+|session-file|) from a certain directory.
+>lua
+    vim.keymap.set("n", "<A-s>", function()
+        require("telescope").extensions["presence"].sessions({
+            sessions_dir = "~/.vim/session"
+        })
+    end)
+<
+The sessions_dir variable tells the picker where to look for session-files. By
+default it's set to ~/.vim/session. There's currently no check nor filter for
+valid session-files. So, make sure to only use a directory that contains
+session-files!
+
+After choosing a session-file from the picker, all currently opened buffers
+are being unloaded and the marks from the |presence_marks| variable will be
+deleted (unless the |g:presence_clear| variable is set to 0), before loading
+the session. Files and marks, from the session-file, will now be available. If
+there're unsaved changes in a buffer, an error will be raised and the buffer
+that has the changes will be focused. 
+
+Marks picker ~
+							 *presence-marks-picker*
+Again with Neovim, the included Marks picker shows a list of global marks.
+They're listed in the order of the |presence_marks| variable, followed by the
+rest of the global marks, in alphabetical order.
+>lua
+    vim.keymap.set("n", "<A-m>", function()
+        require("telescope").extensions["presence"].marks({
+            marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
+        })
+    end)
+<
+When a mark is chosen, it's jumped to. Marks can be deleted with CTRL-d from
+the picker. 
+
+The `marks`-option overrides the |presence_marks| variable.
+
+==============================================================================
+LICENSE							      *presence-license*
+
+MIT License. See LICENSE file for details.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
