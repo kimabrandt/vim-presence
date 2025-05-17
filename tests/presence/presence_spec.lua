@@ -42,10 +42,10 @@ describe("presence.nvim", function()
       let g:test_mode = 1 " enable test-mode (export functions)
       source plugin/presence.vim " load the plugin
       mksession! /tmp/presence_test/Session_02b9.vim
-      let lines = []
-      call add(lines, 'first line')
-      call add(lines, 'second line')
-      call writefile(lines, '/tmp/presence_test/Test_e094.txt') " create a test-file
+      let s:lines = []
+      call add(s:lines, 'first line')
+      call add(s:lines, 'second line')
+      call writefile(s:lines, '/tmp/presence_test/Test_e094.txt') " create a test-file
       edit /tmp/presence_test/Test_e094.txt
       call setpos("'J", [0, 1, 7, 0]) " set the position for mark J
       call SaveGlobalMarks("/tmp/presence_test/Session_02b9.vim") " save global marks
@@ -63,10 +63,10 @@ describe("presence.nvim", function()
     vim.cmd([[
       let g:test_mode = 1 " enable test-mode (export functions)
       source plugin/presence.vim " load the plugin
-      let lines = []
-      call add(lines, 'first line')
-      call add(lines, 'second line')
-      call writefile(lines, '/tmp/presence_test/Test_ba9b.txt') " create a test-file
+      let s:lines = []
+      call add(s:lines, 'first line')
+      call add(s:lines, 'second line')
+      call writefile(s:lines, '/tmp/presence_test/Test_ba9b.txt') " create a test-file
       edit /tmp/presence_test/Test_ba9b.txt
       call setpos("'J", [0, 1, 5, 0]) " create mark
       mksession! /tmp/presence_test/Session_c13b.vim " make a session
@@ -93,6 +93,42 @@ describe("presence.nvim", function()
       vim.g.this_obsession,
       "this_obsession should be blank"
     )
+  end)
+
+  it("should unload and delete all buffers", function()
+    vim.cmd([[
+      edit /tmp/presence_test/Test_6395.txt
+      edit /tmp/presence_test/Test_a8f9.txt
+      edit /tmp/presence_test/Test_4b91.txt
+    ]])
+
+    -- Unload and delete all buffers.
+    vim.fn.UnloadAndDeleteBuffers(vim.api.nvim_list_bufs())
+
+    -- Test if the buffers were unloaded.
+    assert.are_equal(0, vim.fn.bufloaded("/tmp/presence_test/Test_6395.txt"))
+    assert.are_equal(0, vim.fn.bufloaded("/tmp/presence_test/Test_a8f9.txt"))
+    assert.are_equal(0, vim.fn.bufloaded("/tmp/presence_test/Test_4b91.txt"))
+  end)
+
+  it("should unload and delete a single buffer", function()
+    vim.cmd([[
+      edit /tmp/presence_test/Test_99f6.txt
+      edit /tmp/presence_test/Test_4eca.txt
+      edit /tmp/presence_test/Test_64cf.txt
+    ]])
+
+    -- Unload and delete all buffers.
+    vim.fn.UnloadAndDeleteBuffers({
+      vim.fn.bufnr("/tmp/presence_test/Test_4eca.txt"),
+    })
+
+    -- Test if the buffer was unloaded.
+    assert.are_equal(0, vim.fn.bufloaded("/tmp/presence_test/Test_4eca.txt"))
+
+    -- Test if the other buffers are still loaded.
+    assert.are_equal(1, vim.fn.bufloaded("/tmp/presence_test/Test_99f6.txt"))
+    assert.are_equal(1, vim.fn.bufloaded("/tmp/presence_test/Test_64cf.txt"))
   end)
 
   it("should copy a global mark", function()

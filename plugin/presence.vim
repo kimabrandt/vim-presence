@@ -17,7 +17,7 @@ function s:save_global_marks(session_file) abort
   " Files with marks.
   let l:files = {}
 
-  " For all the global marks.
+  " For all global marks.
   for l:marks in getmarklist()
     " Remove the "'"-prefix from the name of the mark.
     let l:mark = substitute(l:marks.mark, "'", "", "")
@@ -103,7 +103,9 @@ endfunction
 " Unloads and deletes the passed in buffers.
 function s:unload_and_delete_buffers(buffers) abort
   for l:buffer in a:buffers
-    execute 'bdelete ' . l:buffer
+    if buflisted(l:buffer)
+      execute 'bdelete ' . l:buffer
+    endif
   endfor
 endfunction
 
@@ -124,14 +126,9 @@ function s:edit_and_show_buffer(buffer) abort
   execute 'buffer ' . a:buffer
 endfunction
 
-" Checks if the buffer exists and is listed.
-function s:buffer_exists(buffer) abort
-    return buflisted(a:buffer)
-endfunction
-
 " Checks if the buffer has one of the marks.
 function s:buffer_has_marks(buffer, marks) abort
-  " For all the supported marks.
+  " For all supported marks.
   for l:mark in a:marks
     " Get the position of the mark.
     let pos = getpos("'" . l:mark)
@@ -158,7 +155,7 @@ function presence#delete_all_buffers() abort
       return 0
     endif
 
-    if s:buffer_exists(l:buffer)
+    if buflisted(l:buffer)
       " Add the buffer to the list.
       call add(l:buffers, l:buffer)
     endif
@@ -180,7 +177,7 @@ function presence#delete_buffers_without_global_marks() abort
 
   " For all opened buffers.
   for l:buffer in range(1, bufnr('$'))
-    if s:buffer_exists(l:buffer)
+    if buflisted(l:buffer)
       if !s:buffer_has_marks(l:buffer, l:global_marks)
         if s:buffer_was_modified(l:buffer)
           call s:edit_and_show_buffer(l:buffer)
@@ -200,13 +197,12 @@ function presence#delete_buffers_without_global_marks() abort
   return 1
 endfunction
 
-
 " Adds a global mark and shifts back existing ones.
 function presence#add_global_mark_and_shift_existing() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
-  " For all the marks, in reverse order.
+  " For all marks, in reverse order.
   for i in range(len(l:global_marks) - 1, 0, -1)
     " Move the mark from the front to the back.
     call s:copy_mark(l:global_marks[i - 1], l:global_marks[i])
@@ -215,7 +211,6 @@ function presence#add_global_mark_and_shift_existing() abort
   " Add the new mark, to the front.
   execute "normal! m" . l:global_marks[0]
 endfunction
-
 
 " Copies the position from one mark to another.
 function s:copy_mark(old_mark, new_mark)
@@ -228,7 +223,6 @@ function s:copy_mark(old_mark, new_mark)
     call setpos("'" . a:new_mark, old_pos)
   endif
 endfunction
-
 
 if exists('g:test_mode')
   " Export functions for testing.
@@ -247,5 +241,9 @@ if exists('g:test_mode')
 
   function! PauseObsession() abort
     call s:pause_obsession()
+  endfunction
+
+  function! UnloadAndDeleteBuffers(buffers) abort
+    call s:unload_and_delete_buffers(a:buffers)
   endfunction
 endif
