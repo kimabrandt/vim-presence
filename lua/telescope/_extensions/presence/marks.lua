@@ -2,6 +2,7 @@ local telescope = require("telescope")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
+local actions = require("telescope._extensions.presence.actions")
 
 local conf = require("telescope.config").values
 
@@ -96,6 +97,11 @@ local list_marks = function(opts)
         entry_maker = opts.entry_maker or make_entry.gen_from_marks(opts),
       }),
       previewer = conf.grep_previewer(opts),
+      attach_mappings = function(_, map)
+        map("i", "<c-d>", actions.delete_mark_selections)
+        map("n", "<c-d>", actions.delete_mark_selections)
+        return true
+      end,
       sorter = conf.generic_sorter(opts),
       push_cursor_on_edit = true,
       push_tagstack_on_edit = true,
