@@ -8,11 +8,11 @@ local action_state = require("telescope.actions.state")
 local function list_sessions(opts)
   opts = opts or {}
 
-  -- Get the list of session files
+  -- Get the list of session files.
   local session_dir = vim.fn.expand("~/.vim/session")
   local session_files = vim.fn.split(vim.fn.globpath(session_dir, "*"), "\n")
 
-  -- Create the picker
+  -- Create the picker.
   pickers
     .new(opts, {
       prompt_title = "Sessions",
@@ -27,24 +27,24 @@ local function list_sessions(opts)
         end,
       }),
       sorter = sorters.get_fuzzy_file(),
-      attach_mappings = function(prompt_bufnr, map)
+      attach_mappings = function(prompt_bufnr)
         actions.select_default:replace(function()
           actions.close(prompt_bufnr)
 
           vim.schedule(function()
-            -- Check the Obsession-variable
+            -- Check if obsession is tracking a session.
             local exists, _ = pcall(vim.api.nvim_get_var, "this_obsession")
             if exists then
-              vim.cmd("silent! Obsession") -- Pause Obsession
+              vim.cmd("silent! Obsession") -- pause obsession
             end
 
             local ok, err = pcall(function()
-              -- Close all buffers
+              -- Close all buffers.
               vim.cmd("%bdelete")
             end)
 
             if ok then
-              -- Load the session
+              -- Load the session.
               local selection = action_state.get_selected_entry()
               vim.cmd("silent! source " .. vim.fn.fnameescape(selection.value))
             elseif err then
