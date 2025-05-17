@@ -109,10 +109,11 @@ augroup END
 
 
 
-" Define the function that sets and manages marks
-function! ManageMarks() abort
+" Add a mark at the beginning of the list of `g:presence_marks` and shift the
+" existing ones.
+function! AddMark() abort
   " Define the list of marks to use
-  let marks = ["J", "K", "L", "F", "D"]
+  let marks = get(g:, 'presence_marks', ["J", "K", "L", "H", "G", "F", "D", "S", "A"]) " default to home row keys
 
   " Iterate through the marks in reverse order to shift them back
   for i in range(len(marks) - 1, 0, -1)

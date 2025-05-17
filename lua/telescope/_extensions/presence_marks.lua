@@ -64,8 +64,9 @@ local list_marks = function(opts)
     return nil
   end
 
+  -- Sort the marks_table in a preferred mark_order.
   table.sort(marks_table, function(row_a, row_b)
-    local mark_order = { "J", "K", "L", "F", "D" }
+    local mark_order = vim.g.presence_marks or { "J", "K", "L", "H", "G", "F", "D", "S", "A" }
     local mark_a = string.sub(row_a.line, 1, 1) -- get mark
     local mark_b = string.sub(row_b.line, 1, 1) -- get mark
     local index_a = IndexOf(mark_order, mark_a) or #mark_order
