@@ -9,7 +9,7 @@ local function list_sessions(opts)
   opts = opts or {}
 
   -- Get the list of session files.
-  local session_dir = vim.fn.expand("~/.vim/session")
+  local session_dir = vim.fn.expand(opts.sessions_dir or "~/.vim/session")
   local session_files = vim.fn.split(vim.fn.globpath(session_dir, "*"), "\n")
 
   -- Create the picker.
