@@ -37,7 +37,9 @@ local function list_sessions(opts)
             if success == 1 then
               -- Load the session.
               local selection = action_state.get_selected_entry()
-              vim.cmd("silent! source " .. vim.fn.fnameescape(selection.value))
+              if selection ~= nil then
+                vim.cmd("silent! source " .. vim.fn.fnameescape(selection.value))
+              end
             end
           end)
         end)
