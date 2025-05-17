@@ -236,8 +236,8 @@ function presence#remove_gaps_in_marks_list() abort
   endfor
 endfunction
 
-" Adds a global mark and shifts back existing ones.
-function presence#add_global_mark_and_shift_existing() abort
+" Adds a global mark and shifts backward existing ones.
+function presence#add_global_mark_and_shift_backward() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
@@ -277,7 +277,7 @@ function presence#add_global_mark_to_the_end_and_replace_last() abort
 endfunction
 
 " Deletes a global mark and shifts forward the rest
-function presence#delete_global_mark_and_shift_rest() abort
+function presence#delete_global_mark_and_shift_forward() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 

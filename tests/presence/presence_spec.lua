@@ -172,7 +172,7 @@ describe("presence.nvim", function()
       let g:test_mode = 1 " enable test-mode (export functions)
       let g:presence_marks = "JKL"
       source plugin/presence.vim " load the plugin
-      call presence#add_global_mark_and_shift_existing()
+      call presence#add_global_mark_and_shift_backward()
       let lines = []
       call add(lines, 'first line')
       call add(lines, 'second line')
@@ -200,7 +200,7 @@ describe("presence.nvim", function()
 
     -- Add a new mark.
     vim.fn.setpos(".", { 0, 1, 7, 0 }) -- set the cursor position
-    vim.fn["presence#add_global_mark_and_shift_existing"]() -- add the mark
+    vim.fn["presence#add_global_mark_and_shift_backward"]() -- add the mark
 
     -- Test the position for mark J (newly added).
     pos = vim.fn.getpos("'J")
