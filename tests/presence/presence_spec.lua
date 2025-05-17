@@ -1,5 +1,4 @@
 describe("presence.nvim", function()
-
   before_each(function()
     -- Create the test-directory.
     os.execute("mkdir -p /tmp/presence_test")
@@ -60,6 +59,29 @@ describe("presence.nvim", function()
     assert.are_equal(7, pos[3], "column should be 7")
   end)
 
+  it("should trigger the autocommand and save the session", function()
+    vim.cmd([[
+      let g:test_mode = 1 " enable test-mode (export functions)
+      source plugin/presence.vim " load the plugin
+      let lines = []
+      call add(lines, 'first line')
+      call add(lines, 'second line')
+      call writefile(lines, '/tmp/presence_test/Test_ba9b.txt') " create a test-file
+      edit /tmp/presence_test/Test_ba9b.txt
+      call setpos("'J", [0, 1, 5, 0]) " create mark
+      mksession! /tmp/presence_test/Session_c13b.vim " make a session
+      let g:this_session = '/tmp/presence_test/Session_c13b.vim' " set the session-file
+      doautocmd <nomodeline> User Obsession " trigger obsession-autocommand
+      call setpos("'J", [0, 2, 6, 0]) " override the position for mark J
+      source /tmp/presence_test/Session_c13b.vim " restore the session
+    ]])
+
+    -- Test the position for mark J.
+    local pos = vim.fn.getpos("'J")
+    assert.are_equal(1, pos[2], "row should be 1")
+    assert.are_equal(5, pos[3], "column should be 5")
+  end)
+
   it("should copy a global mark", function()
     vim.cmd([[
       let g:test_mode = 1 " enable test-mode (export functions)
@@ -97,7 +119,7 @@ describe("presence.nvim", function()
       let g:test_mode = 1 " enable test-mode (export functions)
       let g:presence_marks = "JKL"
       source plugin/presence.vim " load the plugin
-      call presence#add_global_mark_and_shift_back_others()
+      call presence#add_global_mark_and_shift_existing()
       let lines = []
       call add(lines, 'first line')
       call add(lines, 'second line')
@@ -124,8 +146,8 @@ describe("presence.nvim", function()
     assert.are_equal(8, pos[3], "column should be 8")
 
     -- Add a new mark.
-    vim.fn.setpos(".", {0, 1, 7, 0}) -- set the cursor position
-    vim.fn["presence#add_global_mark_and_shift_back_others"]() -- add the mark
+    vim.fn.setpos(".", { 0, 1, 7, 0 }) -- set the cursor position
+    vim.fn["presence#add_global_mark_and_shift_existing"]() -- add the mark
 
     -- Test the position for mark J (newly added).
     pos = vim.fn.getpos("'J")
@@ -163,28 +185,4 @@ describe("presence.nvim", function()
     bufloaded = vim.fn.bufloaded("/tmp/presence_test/Test_ea15_keep.txt")
     assert.are_equal(1, bufloaded, "buffer should be loaded")
   end)
-
-  it("should trigger the autocommand and save the session", function()
-    vim.cmd([[
-      let g:test_mode = 1 " enable test-mode (export functions)
-      source plugin/presence.vim " load the plugin
-      let lines = []
-      call add(lines, 'first line')
-      call add(lines, 'second line')
-      call writefile(lines, '/tmp/presence_test/Test_ba9b.txt') " create a test-file
-      edit /tmp/presence_test/Test_ba9b.txt
-      call setpos("'J", [0, 1, 5, 0]) " create mark
-      mksession! /tmp/presence_test/Session_c13b.vim " make a session
-      let g:this_session = '/tmp/presence_test/Session_c13b.vim' " set the session-file
-      doautocmd <nomodeline> User Obsession " trigger obsession-autocommand
-      call setpos("'J", [0, 2, 6, 0]) " override the position for mark J
-      source /tmp/presence_test/Session_c13b.vim " restore the session
-    ]])
-
-    -- Test the position for mark J.
-    local pos = vim.fn.getpos("'J")
-    assert.are_equal(1, pos[2], "row should be 1")
-    assert.are_equal(5, pos[3], "column should be 5")
-  end)
-
 end)
