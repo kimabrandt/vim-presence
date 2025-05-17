@@ -56,7 +56,7 @@ function s:save_global_marks(session_file) abort
   " Check if marks should be cleared, before restoring them.
   if exists('g:presence_clear') == 0 || get(g:, 'presence_clear', 1)
     " Clears the marks, when the session-file is loaded.
-    call add(l:lines, 'delmarks ' . join(l:global_marks))
+    call add(l:lines, 'delmarks ' . join(l:global_marks, ''))
   endif
 
   " Prepare the lines.
@@ -167,7 +167,7 @@ function presence#delete_all_buffers() abort
   return 1
 endfunction
 
-" Unloads and deletes buffers which don't have any global marks.
+" Unloads and deletes buffers without global marks.
 function presence#delete_buffers_without_global_marks() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
@@ -191,7 +191,6 @@ function presence#delete_buffers_without_global_marks() abort
     endif
   endfor
 
-  call s:pause_obsession()
   call s:unload_and_delete_buffers(l:buffers)
 
   return 1
@@ -227,23 +226,23 @@ endfunction
 if exists('g:test_mode')
   " Export functions for testing.
 
-  function! GetGlobalMarks() abort
+  function! TestGetGlobalMarks() abort
     return s:get_global_marks()
   endfunction
 
-  function! SaveGlobalMarks(session_file) abort
+  function! TestSaveGlobalMarks(session_file) abort
     call s:save_global_marks(a:session_file)
   endfunction
 
-  function! CopyMark(old_mark, new_mark) abort
+  function! TestCopyMark(old_mark, new_mark) abort
     call s:copy_mark(a:old_mark, a:new_mark)
   endfunction
 
-  function! PauseObsession() abort
+  function! TestPauseObsession() abort
     call s:pause_obsession()
   endfunction
 
-  function! UnloadAndDeleteBuffers(buffers) abort
+  function! TestUnloadAndDeleteBuffers(buffers) abort
     call s:unload_and_delete_buffers(a:buffers)
   endfunction
 endif
