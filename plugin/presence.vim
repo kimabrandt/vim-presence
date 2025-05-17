@@ -106,6 +106,18 @@ function presence#delete_buffers_without_global_marks() abort
 
   " For all the opened buffers.
   for buffer in range(1, bufnr('$'))
+    " Check if the buffer has unsaved changes.
+    if getbufvar(buffer, '&modified')
+      " Edit the buffer, and thereby putting it into focus.
+      execute 'buffer ' . buffer
+
+      " Show an error and return.
+      echohl ErrorMsg
+      echo "The buffer has unsaved changes"
+      echohl None
+      return
+    endif
+
     " Check if the buffer exists and is listed.
     if buflisted(buffer)
       " Assume that there're no marks initially.
@@ -123,25 +135,22 @@ function presence#delete_buffers_without_global_marks() abort
         endif
       endfor
 
-      " Check if no marks have been found.
+      " Check if no marks - pointing to the buffer - have been found.
       if has_marks == 0
-        " Add the buffer - without marks - to the list.
+        " Add the buffer to the list.
         call add(buffers, buffer)
       endif
     endif
   endfor
 
-  " For all the collected buffers.
-  for buffer in buffers
-    " Check if the buffer has unsaved changes.
-    if getbufvar(buffer, '&modified')
-      " Edit the buffer, and thereby putting it into focus.
-      execute 'buffer ' . buffer
-    endif
+  " Check if obsession is tracking a session.
+  if exists("g:this_obsession")
+    " Pause obsession.
+    silent! Obsession
+  endif
 
-    " Unload and delete the buffer, if the buffer wasn't changed.
-    execute 'bdelete ' . buffer
-  endfor
+  " Unload and delete the buffers.
+  bufdo bdelete
 endfunction
 
 
