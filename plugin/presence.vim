@@ -1,3 +1,4 @@
+" Save global marks to the obsession-file.
 function! s:save_global_marks() abort
   let l:marked_files = {}
   let l:ordered_files = []
@@ -13,7 +14,7 @@ function! s:save_global_marks() abort
 
     let l:file = l:mark_item.file
     let l:pos = l:mark_item.pos
-    let l:line_number = l:pos[1]
+    let l:lnum = l:pos[1]
     let l:column = l:pos[2]
 
     if has_key(l:marked_files, l:file)
@@ -23,11 +24,11 @@ function! s:save_global_marks() abort
       " create a new list of marks, for a newly discovered marked file
       let l:list = []
       let l:marked_files[l:file] = l:list
-      call add(l:list, "badd +" . l:line_number . " " . fnameescape(l:file))
+      call add(l:list, "badd +" . l:lnum . " " . fnameescape(l:file)) " add file to buffer-list
       call add(l:list, "keepjumps buffer " . fnameescape(l:file)) " edit file
-      call add(l:ordered_files, l:file) " keep the order of the files
+      call add(l:ordered_files, l:file) " keep order of discovered files
     endif
-    call add(l:list, "call setcursorcharpos(" . l:line_number . ", " . l:column . ")") " go to cursor position
+    call add(l:list, "call setcursorcharpos(" . l:lnum . ", " . l:column . ")") " go to cursor position
     call add(l:list, "normal! m" . l:mark) " set mark
   endfor
 
@@ -38,8 +39,8 @@ function! s:save_global_marks() abort
     call add(l:lines, l:list)
     let l:bufnr = bufnr(l:file)
     if bufloaded(l:bufnr)
-      let l:line_number = getbufinfo(l:bufnr)[0]['lnum']
-      call add(l:list, l:line_number) " go to line, preempt `badd`
+      let l:lnum = getbufinfo(l:bufnr)[0]['lnum']
+      call add(l:list, l:lnum) " go to line, preempt `badd`
     endif
   endfor
 
@@ -57,6 +58,14 @@ function! s:save_global_marks() abort
   call writefile(l:body, g:this_obsession)
 endfunction
 
+augroup my_obsession
+  autocmd!
+  autocmd User Obsession call s:save_global_marks()
+augroup END
+
+
+
+" Delete buffers that don't have any marks.
 function! s:delete_buffers_without_marks() abort
   " List to hold buffers without marks
   let no_mark_buffers = []
@@ -102,11 +111,6 @@ endfunction
 command! -bar -bang -complete=file -nargs=? DeleteBuffersWithoutMarks
       \ call s:delete_buffers_without_marks()
 
-augroup my_obsession
-  autocmd!
-  autocmd User Obsession call s:save_global_marks()
-augroup END
-
 
 
 " Add a mark at the beginning of the list of `g:presence_marks` and shift the
@@ -147,37 +151,26 @@ function! JumpToMark(mark)
 
   let l:mark_item = marks[0]
   let l:file = l:mark_item.file
-  let bufnum = bufnr(file)
-
-  " If the mark doesn't exist in any buffer, do nothing
-  if bufnum == -1
-    " echo "Mark '" . a:mark . "' does not exist."
-    return
-  endif
-
-  " Switch to the buffer containing the mark
-  if bufnum != bufnr('%')
-    execute 'buffer ' . bufnum
-  endif
+  let l:pos = l:mark_item.pos
+  let l:lnum = l:pos[1]
+  let l:column = l:pos[2]
+  let l:buffer = bufnr(file)
 
   " Get the range of the current view
-  let first_visible_line = line("w0")
-  let last_visible_line = line("w$")
+  let l:first_visible_line = line("w0")
+  let l:last_visible_line = line("w$")
 
-  let l:pos = l:mark_item.pos
-  let l:line_number = l:pos[1]
-  let l:column = l:pos[2]
+  let l:is_before_view = l:lnum < l:first_visible_line
+  let l:is_after_view = l:lnum > l:last_visible_line
+  let l:is_outside_buffer = l:buffer != bufnr('%')
 
   " Check if the mark is within the current view range, or if the cursor is on the first line
-  if l:line_number < first_visible_line || l:line_number > last_visible_line
-    " If the mark is outside the view, jump to the mark
-    " echo "Jump to mark '" . a:mark . "'."
+  if l:is_before_view || l:is_after_view || l:is_outside_buffer
+    " The mark is outside the current view
+    " Jump to the mark
     execute "normal! `" . a:mark
   else
-    " If the mark is in view, set the cursor position
-    " execute l:line_number
-    " execute "normal! " . l:column . "|"
-    " echo "Set cursor positions for mark '" . a:mark . "'."
-    call setcursorcharpos(l:line_number, l:column)
+    " The mark is inside the current view
+    call setcursorcharpos(l:lnum, l:column) " set cursor position
   endif
 endfunction
