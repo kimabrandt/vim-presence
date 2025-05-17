@@ -23,7 +23,7 @@ function! s:save_global_marks() abort
       " create a new list of marks, for a newly discovered marked file
       let l:list = []
       let l:marked_files[l:file] = l:list
-      call add(l:list, "let s:bufnum = bufnr(\"" . fnameescape(l:file) . "\", v:true)") " get buffer number
+      call add(l:list, "let s:bufnum = bufnr(fnamemodify(\"" . fnameescape(l:file) . "\", \":p\"), v:true)") " get buffer number
     endif
     call add(l:list, "call setpos(\"'" . l:mark . "\", [s:bufnum, " . l:lnum . ", " . l:column . ", 0])") " set mark
   endfor
