@@ -55,7 +55,16 @@ local list_marks = function(opts)
     end
   end
 
-  function IndexOf(array, value)
+  local get_marks_order = function()
+    local mark_list = vim.g.presence_marks or "JKLHGFDSA"
+    local marks = {}
+    for mark in mark_list:gmatch(".") do
+      table.insert(marks, mark)
+    end
+    return marks
+  end
+
+  local index_of = function(array, value)
     for i, v in ipairs(array) do
       if v == value then
         return i
@@ -66,11 +75,11 @@ local list_marks = function(opts)
 
   -- Sort the marks_table in a preferred mark_order.
   table.sort(marks_table, function(row_a, row_b)
-    local mark_order = vim.g.presence_marks or { "J", "K", "L", "H", "G", "F", "D", "S", "A" }
+    local mark_order = get_marks_order()
     local mark_a = string.sub(row_a.line, 1, 1) -- get mark
     local mark_b = string.sub(row_b.line, 1, 1) -- get mark
-    local index_a = IndexOf(mark_order, mark_a) or #mark_order
-    local index_b = IndexOf(mark_order, mark_b) or #mark_order
+    local index_a = index_of(mark_order, mark_a) or #mark_order
+    local index_b = index_of(mark_order, mark_b) or #mark_order
     if index_a ~= #mark_order or index_b ~= #mark_order then
       return index_a < index_b
     else
