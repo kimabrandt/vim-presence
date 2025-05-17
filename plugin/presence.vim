@@ -24,13 +24,10 @@ function! s:save_global_marks() abort
       let l:list = []
       let l:marked_files[l:file] = l:list
       call add(l:list, "badd +" . l:line_number . " " . fnameescape(l:file))
-      "call add(l:list, "keepjumps edit " . fnameescape(l:file)) " edit file
-      "call add(l:list, "buffer! " . fnameescape(l:file)) " edit file
       call add(l:list, "keepjumps buffer " . fnameescape(l:file)) " edit file
       call add(l:ordered_files, l:file) " keep the order of the files
     endif
-    call add(l:list, l:line_number) " go to line
-    call add(l:list, "normal! " . l:column . "|") " go to column
+    call add(l:list, "call setcursorcharpos(" . l:line_number . ", " . l:column . ")") " go to cursor position
     call add(l:list, "normal! m" . l:mark) " set mark
   endfor
 
