@@ -1,4 +1,4 @@
-" Global variables:
+" Supported global variables:
 "
 "   let g:presence_marks = "JKLHGFDSA"  " List of marks that should be used when saving, clearing and restoring them.
 "   let g:presence_clear = 0            " Don't clear the marks - from the `g:presence_marks'-list - before restoring them.
