@@ -1,18 +1,18 @@
 " Global variables:
 "
-"   let g:presence_marks = "JKLHGFDSA"  " List of marks that should be respected when clearing and restoring them.
-"   let g:presence_clear = 0            " DO NOT CLEAR the marks defined in `g:presence_marks`, before restoring them.
-"   let g:presence_clear = 1            " DO CLEAR the marks in the `g:presence_marks`-list, before restoring them.
+"   let g:presence_marks = "JKLHGFDSA"  " List of marks that should be used when saving, clearing and restoring them.
+"   let g:presence_clear = 0            " Don't clear the marks - from the `g:presence_marks'-list - before restoring them.
+"   let g:presence_clear = 1            " Clear the marks - from the `g:presence_marks'-list - before restoring them.
 
 
 " Gets a list of supported global marks.
-function! s:get_global_marks() abort
-  return split(get(g:, 'presence_marks', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), '\zs')
+function s:get_global_marks() abort
+  return split(get(g:, 'presence_marks', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '\zs')
 endfunction
 
 
 " Saves global marks to the session-file.
-function! s:save_global_marks() abort
+function s:save_global_marks(session_file) abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
@@ -67,7 +67,7 @@ function! s:save_global_marks() abort
   endfor
 
   " Read the session-file.
-  let l:body = readfile(g:this_session)
+  let l:body = readfile(a:session_file)
 
   " Find the index, where to add the lines inside the session-file.
   let l:idx = 0
@@ -86,18 +86,18 @@ function! s:save_global_marks() abort
   endfor
 
   " Write the session-file.
-  call writefile(l:body, g:this_session)
+  call writefile(l:body, a:session_file)
 endfunction
 
 " Create an autocommand for saving the marks.
 augroup presence_save
   autocmd!
-  autocmd User Obsession call s:save_global_marks()
+  autocmd User Obsession call s:save_global_marks(g:this_session)
 augroup END
 
 
-" Deletes buffers without global marks.
-function! s:delete_buffers_without_global_marks() abort
+" Deletes buffers which don't have any global marks.
+function presence#delete_buffers_without_global_marks() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
@@ -144,49 +144,9 @@ function! s:delete_buffers_without_global_marks() abort
   endfor
 endfunction
 
-command! -bar -bang -complete=file -nargs=? DeleteBuffersWithoutMarks
-      \ call s:delete_buffers_without_global_marks()
 
-
-" Jumps to the specified mark.
-function! presence#jump_to_mark(mark)
-  " Find the mark.
-  let l:marks = filter(getmarklist(), {_, mark -> mark['mark'] == "'" . a:mark})
-  if len(l:marks) == 0
-    return
-  endif
-  let l:mark = l:marks[0]
-
-  " Get the position of the mark.
-  let l:pos = l:mark.pos
-  let l:buffer = l:pos[0]
-  let l:lnum = l:pos[1]
-  let l:column = l:pos[2]
-
-  " " Get the buffer for the mark, from the filename.
-  " let l:file = l:mark.file
-  " let l:buffer = bufnr(file)
-
-  " Get the range of the current view.
-  let l:first_visible_line = line("w0")
-  let l:last_visible_line = line("w$")
-
-  " Check if the mark is outside the current view-range.
-  let l:is_outside_buffer = l:buffer != bufnr('%')
-  let l:is_before_view = l:lnum < l:first_visible_line
-  let l:is_after_view = l:lnum > l:last_visible_line
-  if  l:is_outside_buffer || l:is_before_view || l:is_after_view
-    " The mark is outside the current view. So, jump to it.
-    execute "normal! `" . a:mark
-  else
-    " The mark is inside the current view. So, just set the cursor-position.
-    call setcursorcharpos(l:lnum, l:column) " 
-  endif
-endfunction
-
-
-" Adds a mark and shifts back existing ones.
-function! presence#add_mark() abort
+" Adds a global mark and shifts back existing ones.
+function presence#add_global_mark_and_shift_existing() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
@@ -202,7 +162,7 @@ endfunction
 
 
 " Copies the position from one mark to another.
-function! s:copy_mark(old_mark, new_mark)
+function s:copy_mark(old_mark, new_mark)
   " Get the position of the old mark.
   let old_pos = getpos("'" . a:old_mark)
 
@@ -212,3 +172,20 @@ function! s:copy_mark(old_mark, new_mark)
     call setpos("'" . a:new_mark, old_pos)
   endif
 endfunction
+
+
+if exists('g:test_mode')
+  " Export functions for testing.
+
+  function! GetGlobalMarks() abort
+    return s:get_global_marks()
+  endfunction
+
+  function! SaveGlobalMarks(session_file) abort
+    call s:save_global_marks(a:session_file)
+  endfunction
+
+  function! CopyMark(old_mark, new_mark) abort
+    call s:copy_mark(a:old_mark, a:new_mark)
+  endfunction
+endif

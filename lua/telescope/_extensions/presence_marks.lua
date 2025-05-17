@@ -56,7 +56,7 @@ local list_marks = function(opts)
   end
 
   local get_marks_order = function()
-    local mark_list = vim.g.presence_marks or "JKLHGFDSA"
+    local mark_list = vim.g.presence_marks or "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     local marks = {}
     for mark in mark_list:gmatch(".") do
       table.insert(marks, mark)
