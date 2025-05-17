@@ -244,4 +244,8 @@ if exists('g:test_mode')
   function! CopyMark(old_mark, new_mark) abort
     call s:copy_mark(a:old_mark, a:new_mark)
   endfunction
+
+  function! PauseObsession() abort
+    call s:pause_obsession()
+  endfunction
 endif
