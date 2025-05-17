@@ -135,4 +135,49 @@ function! s:move_mark(old_mark, new_mark)
   endif
 endfunction
 
-nnoremap mm :call ManageMarks()<CR>
+
+
+" Jumps to the specified mark.
+function! JumpToMark(mark)
+  " Get the buffer number associated with the mark
+  let l:marks = filter(getmarklist(), {_, mark -> mark['mark'] == "'" . a:mark})
+  if len(marks) == 0
+    return
+  endif
+
+  let l:mark_item = marks[0]
+  let l:file = l:mark_item.file
+  let bufnum = bufnr(file)
+
+  " If the mark doesn't exist in any buffer, do nothing
+  if bufnum == -1
+    " echo "Mark '" . a:mark . "' does not exist."
+    return
+  endif
+
+  " Switch to the buffer containing the mark
+  if bufnum != bufnr('%')
+    execute 'buffer ' . bufnum
+  endif
+
+  " Get the range of the current view
+  let first_visible_line = line("w0")
+  let last_visible_line = line("w$")
+
+  let l:pos = l:mark_item.pos
+  let l:line_number = l:pos[1]
+  let l:column = l:pos[2]
+
+  " Check if the mark is within the current view range, or if the cursor is on the first line
+  if l:line_number < first_visible_line || l:line_number > last_visible_line
+    " If the mark is outside the view, jump to the mark
+    " echo "Jump to mark '" . a:mark . "'."
+    execute "normal! `" . a:mark
+  else
+    " If the mark is in view, set the cursor position
+    " execute l:line_number
+    " execute "normal! " . l:column . "|"
+    " echo "Set cursor positions for mark '" . a:mark . "'."
+    call setcursorcharpos(l:line_number, l:column)
+  endif
+endfunction
