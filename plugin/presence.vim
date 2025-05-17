@@ -4,11 +4,11 @@
 "   let g:presence_clear = 0            " DO NOT CLEAR the marks defined in `g:presence_marks`, before restoring them.
 "   let g:presence_clear = 1            " DO CLEAR the marks in the `g:presence_marks`-list, before restoring them.
 
+
 " Gets a list of supported global marks.
 function! s:get_global_marks() abort
   return split(get(g:, 'presence_marks', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), '\zs')
 endfunction
-
 
 
 " Saves global marks to the session-file.
@@ -96,7 +96,6 @@ augroup presence_save
 augroup END
 
 
-
 " Deletes buffers without global marks.
 function! s:delete_buffers_without_global_marks() abort
   " Supported global marks.
@@ -149,7 +148,6 @@ command! -bar -bang -complete=file -nargs=? DeleteBuffersWithoutMarks
       \ call s:delete_buffers_without_global_marks()
 
 
-
 " Jumps to the specified mark.
 function! presence#jump_to_mark(mark)
   " Find the mark.
@@ -159,14 +157,15 @@ function! presence#jump_to_mark(mark)
   endif
   let l:mark = l:marks[0]
 
-  " Get the buffer for the mark.
-  let l:file = l:mark.file
-  let l:buffer = bufnr(file)
-
   " Get the position of the mark.
   let l:pos = l:mark.pos
+  let l:buffer = l:pos[0]
   let l:lnum = l:pos[1]
   let l:column = l:pos[2]
+
+  " " Get the buffer for the mark, from the filename.
+  " let l:file = l:mark.file
+  " let l:buffer = bufnr(file)
 
   " Get the range of the current view.
   let l:first_visible_line = line("w0")
@@ -186,7 +185,6 @@ function! presence#jump_to_mark(mark)
 endfunction
 
 
-
 " Adds a mark and shifts back existing ones.
 function! presence#add_mark() abort
   " Supported global marks.
@@ -201,6 +199,7 @@ function! presence#add_mark() abort
   " Add the new mark, to the front.
   execute "normal! m" . l:global_marks[0]
 endfunction
+
 
 " Copies the position from one mark to another.
 function! s:copy_mark(old_mark, new_mark)
