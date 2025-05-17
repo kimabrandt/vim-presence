@@ -1,4 +1,3 @@
-local telescope = require("telescope")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
@@ -6,7 +5,7 @@ local actions = require("telescope._extensions.presence.actions")
 
 local conf = require("telescope.config").values
 
-local list_marks = function(opts)
+return function(opts)
   opts = opts or {}
 
   if opts.bufnr == nil then
@@ -108,9 +107,3 @@ local list_marks = function(opts)
     })
     :find()
 end
-
-return telescope.register_extension({
-  exports = {
-    marks = list_marks,
-  },
-})

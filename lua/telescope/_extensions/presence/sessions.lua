@@ -1,11 +1,10 @@
-local telescope = require("telescope")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local sorters = require("telescope.sorters")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 
-local function list_sessions(opts)
+return function(opts)
   opts = opts or {}
 
   -- Get the list of session files.
@@ -38,7 +37,9 @@ local function list_sessions(opts)
               -- Load the session.
               local selection = action_state.get_selected_entry()
               if selection ~= nil then
-                vim.cmd("silent! source " .. vim.fn.fnameescape(selection.value))
+                vim.cmd(
+                  "silent! source " .. vim.fn.fnameescape(selection.value)
+                )
               end
             end
           end)
@@ -48,9 +49,3 @@ local function list_sessions(opts)
     })
     :find()
 end
-
-return telescope.register_extension({
-  exports = {
-    sessions = list_sessions,
-  },
-})
