@@ -79,8 +79,8 @@ local list_marks = function(opts)
     local mark_order = get_marks_order()
     local mark_a = string.sub(row_a.line, 1, 1) -- get mark
     local mark_b = string.sub(row_b.line, 1, 1) -- get mark
-    local index_a = index_of(mark_order, mark_a) or #mark_order
-    local index_b = index_of(mark_order, mark_b) or #mark_order
+    local index_a = index_of(mark_order, mark_a) or #mark_order + 1
+    local index_b = index_of(mark_order, mark_b) or #mark_order + 1
     if index_a ~= #mark_order or index_b ~= #mark_order then
       return index_a < index_b
     else
