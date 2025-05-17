@@ -82,6 +82,19 @@ describe("presence.nvim", function()
     assert.are_equal(5, pos[3], "column should be 5")
   end)
 
+  it("should pause obsessions session-tracking", function()
+    vim.api.nvim_create_user_command("Obsession", function()
+      vim.g.this_obsession = nil
+    end, {})
+    vim.g.this_obsession = "/tmp/presence_test/Test_fcba.txt"
+    vim.fn.PauseObsession()
+    assert.are_equal(
+      nil,
+      vim.g.this_obsession,
+      "this_obsession should be blank"
+    )
+  end)
+
   it("should copy a global mark", function()
     vim.cmd([[
       let g:test_mode = 1 " enable test-mode (export functions)
