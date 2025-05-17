@@ -196,19 +196,101 @@ function presence#delete_buffers_without_global_marks() abort
   return 1
 endfunction
 
+function GlobalMarkExists(mark)
+  for l:m in getmarklist()
+    if l:m.mark == "'" . a:mark
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
+function presence#remove_gaps_in_marks_list() abort
+  " Supported global marks.
+  let l:global_marks = s:get_global_marks()
+
+  let l:marks = []
+
+  " Collect existing marks.
+  for l:i in range(0, len(l:global_marks) - 1)
+    let l:mark = l:global_marks[l:i]
+    " Check if the global mark exists.
+    if GlobalMarkExists(l:mark) == 1
+      " Add the mark to the list.
+      call add(l:marks, l:mark)
+    endif
+  endfor
+
+  " For every supported mark.
+  for l:i in range(0, len(l:global_marks) - 1)
+    let l:new_mark = l:global_marks[l:i]
+    " Check for more marks.
+    if len(l:marks) > l:i
+      let l:old_mark = l:marks[l:i]
+      " Copy the mark and thereby removing the gap.
+      call s:copy_mark(l:old_mark, l:new_mark)
+    else
+      " Remove leftover marks.
+      execute "delmarks " . l:new_mark
+    endif
+  endfor
+endfunction
+
 " Adds a global mark and shifts back existing ones.
 function presence#add_global_mark_and_shift_existing() abort
   " Supported global marks.
   let l:global_marks = s:get_global_marks()
 
   " For all marks, in reverse order.
-  for i in range(len(l:global_marks) - 1, 0, -1)
+  for l:i in range(len(l:global_marks) - 1, 0, -1)
     " Move the mark from the front to the back.
-    call s:copy_mark(l:global_marks[i - 1], l:global_marks[i])
+    call s:copy_mark(l:global_marks[l:i - 1], l:global_marks[l:i])
   endfor
 
   " Add the new mark, to the front.
   execute "normal! m" . l:global_marks[0]
+endfunction
+
+" Adds a global mark to the end and potentially replaces the last one.
+function presence#add_global_mark_to_the_end_and_replace_last() abort
+  " Supported global marks.
+  let l:global_marks = s:get_global_marks()
+
+  " Point the index on the last mark.
+  let l:index = len(l:global_marks) - 1
+
+  " For all marks, in reverse order.
+  for l:i in range(len(l:global_marks) - 1, 0, -1)
+    let l:mark = l:global_marks[l:i]
+    " Check if the global mark exists.
+    if GlobalMarkExists(l:mark) == 1
+      " Found the last mark.
+      break
+    else
+      " Remember the index.
+      let l:index = l:i
+    endif
+  endfor
+
+  " Add the new mark, to the end.
+  execute "normal! m" . l:global_marks[l:index]
+endfunction
+
+" Deletes a global mark and shifts forward the rest
+function presence#delete_global_mark_and_shift_rest() abort
+  " Supported global marks.
+  let l:global_marks = s:get_global_marks()
+
+  " let l:marks_length = len(l:global_marks)
+
+  " Delete the first mark.
+  execute "delmarks " . l:global_marks[0]
+
+  " Shift the rest forward.
+  for l:i in range(1, len(l:global_marks) - 1)
+    call s:copy_mark(l:global_marks[l:i], l:global_marks[l:i - 1])
+    execute "delmarks " . l:global_marks[l:i]
+  endfor
 endfunction
 
 " Copies the position from one mark to another.
