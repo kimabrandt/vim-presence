@@ -26,7 +26,7 @@ order defined by the [presence_marks](#g:presence_marks) variable.
 This README.md is a shortened version of the doc/presence.txt help file:
 
 ```vim
-    :h presence.txt
+:h presence.txt
 ```
 
 ## Installation
@@ -39,9 +39,9 @@ install both.
 Clone both repositories into your ~/.vim/bundle directory:
 
 ```sh
-    cd ~/.vim/bundle
-    git clone https://github.com/tpope/vim-obsession.git
-    git clone https://github.com/kimabrandt/vim-presence.git
+cd ~/.vim/bundle
+git clone https://github.com/tpope/vim-obsession.git
+git clone https://github.com/kimabrandt/vim-presence.git
 ```
 
 ### Using Vundle.vim ([VundleVim/Vundle.vim](https://github.com/VundleVim/Vundle.vim))
@@ -49,10 +49,10 @@ Clone both repositories into your ~/.vim/bundle directory:
 Add these Plugin-lines to your init.vim:
 
 ```vim
-    call vundle#begin()
-    Plugin 'tpope/vim-obsession'
-    Plugin 'kimabrandt/vim-presence'
-    call vundle#end()
+call vundle#begin()
+Plugin 'tpope/vim-obsession'
+Plugin 'kimabrandt/vim-presence'
+call vundle#end()
 ```
 
 ### Using vim-plug ([junegunn/vim-plug](https://github.com/junegunn/vim-plug))
@@ -60,10 +60,10 @@ Add these Plugin-lines to your init.vim:
 Add these Plug-lines to your init.vim:
 
 ```vim
-    call plug#begin()
-    Plug 'tpope/vim-obsession'
-    Plug 'kimabrandt/vim-presence'
-    call plug#end()
+call plug#begin()
+Plug 'tpope/vim-obsession'
+Plug 'kimabrandt/vim-presence'
+call plug#end()
 ```
 
 ### Using lazy.nvim ([folke/lazy.nvim](https://github.com/folke/lazy.nvim))
@@ -71,12 +71,12 @@ Add these Plug-lines to your init.vim:
 Add this plugin spec to your init.lua:
 
 ```lua
-    require("lazy").setup({
-        spec = {
-            "tpope/vim-obsession",
-            "kimabrandt/vim-presence"
-        }
-    })
+require("lazy").setup({
+    spec = {
+        "tpope/vim-obsession",
+        "kimabrandt/vim-presence"
+    }
+})
 ```
 
 ## Quickstart
@@ -86,16 +86,16 @@ Add this plugin spec to your init.lua:
 Add this to your init.vim:
 
 ```vim
-    call plug#begin()
-    Plug 'tpope/vim-obsession'
-    Plug 'kimabrandt/vim-presence'
-    call plug#end()
+call plug#begin()
+Plug 'tpope/vim-obsession'
+Plug 'kimabrandt/vim-presence'
+call plug#end()
 
-    let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
-    nnoremap mm :call presence#add_global_mark_and_shift_backward()<cr>
-    nnoremap me :call presence#add_global_mark_to_the_end_and_replace_last()<cr>
-    nnoremap md :call presence#delete_global_mark_and_shift_forward()<cr>
-    nnoremap <leader><esc> :call presence#delete_buffers_without_global_marks() \| call presence#remove_gaps_in_marks_list()<cr>
+let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
+nnoremap mm :call presence#add_global_mark_and_shift_backward()<cr>
+nnoremap me :call presence#add_global_mark_to_the_end_and_replace_last()<cr>
+nnoremap md :call presence#delete_global_mark_and_shift_forward()<cr>
+nnoremap <leader><esc> :call presence#delete_buffers_without_global_marks() \| call presence#remove_gaps_in_marks_list()<cr>
 ```
 
 ### For Neovim
@@ -103,53 +103,53 @@ Add this to your init.vim:
 Add this to your init.lua:
 
 ```lua
-    require("lazy").setup({
-        spec = {
-            {
-                "kimabrandt/vim-presence",
-                dependencies = {
-                    "tpope/vim-obsession",
-                    "nvim-telescope/telescope.nvim",
-                },
-                config = function()
-                    vim.g.presence_marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
-		    vim.g.presence_clear = 1 -- clear the presence_marks
-
-                    vim.keymap.set("n", "mm", function() -- assign the current text-position to the highest priority mark
-                        vim.cmd("call presence#add_global_mark_and_shift_backward()")
-                    end)
-
-                    vim.keymap.set("n", "me", function() -- assign the current text-position to the lowest priority mark
-                        vim.cmd("call presence#add_global_mark_to_the_end_and_replace_last()")
-                    end)
-
-                    vim.keymap.set("n", "md", function() -- remove the highest priority mark
-                        vim.cmd("call presence#delete_global_mark_and_shift_forward()")
-                    end)
-
-                    vim.keymap.set("n", "<leader><esc>", function() -- clean up buffers and reorder marks-list
-                        vim.cmd([[
-                            call presence#delete_buffers_without_global_marks()
-                            call presence#remove_gaps_in_marks_list()
-                        ]])
-                    end)
-
-                    require("telescope").load_extension("presence")
-
-                    vim.keymap.set("n", "<A-s>", function() -- show the session files (with Telescope)
-                        require("telescope").extensions["presence"].sessions({
-                            sessions_dir = "~/.vim/session"
-                        })
-                    end)
-
-                    vim.keymap.set("n", "<A-m>", function() -- show the list of global marks (with Telescope)
-                        require("telescope").extensions["presence"].marks()
-                    end)
-
-                end,
+require("lazy").setup({
+    spec = {
+        {
+            "kimabrandt/vim-presence",
+            dependencies = {
+                "tpope/vim-obsession",
+                "nvim-telescope/telescope.nvim",
             },
+            config = function()
+                vim.g.presence_marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
+                vim.g.presence_clear = 1 -- clear the presence_marks
+
+                vim.keymap.set("n", "mm", function() -- assign the current text-position to the highest priority mark
+                    vim.cmd("call presence#add_global_mark_and_shift_backward()")
+                end)
+
+                vim.keymap.set("n", "me", function() -- assign the current text-position to the lowest priority mark
+                    vim.cmd("call presence#add_global_mark_to_the_end_and_replace_last()")
+                end)
+
+                vim.keymap.set("n", "md", function() -- remove the highest priority mark
+                    vim.cmd("call presence#delete_global_mark_and_shift_forward()")
+                end)
+
+                vim.keymap.set("n", "<leader><esc>", function() -- clean up buffers and reorder marks-list
+                    vim.cmd([[
+                        call presence#delete_buffers_without_global_marks()
+                        call presence#remove_gaps_in_marks_list()
+                    ]])
+                end)
+
+                require("telescope").load_extension("presence")
+
+                vim.keymap.set("n", "<A-s>", function() -- show the session files (with Telescope)
+                    require("telescope").extensions["presence"].sessions({
+                        sessions_dir = "~/.vim/session"
+                    })
+                end)
+
+                vim.keymap.set("n", "<A-m>", function() -- show the list of global marks (with Telescope)
+                    require("telescope").extensions["presence"].marks()
+                end)
+
+            end,
         },
-    })
+    },
+})
 ```
 
 ## Configuration
@@ -160,7 +160,7 @@ This global variable controls which global marks are tracked and saved in a
 session-file, and restored when loading the session-file.
 
 ```vim
-    let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
+let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
 ```
 
 By default, all marks (from A to Z) are taken into account. If you set
@@ -177,8 +177,8 @@ This global variable tells the plugin to either clear the
 be.
 
 ```vim
-    let g:presence_clear = 0 " don't clear the presence_marks
-    let g:presence_clear = 1 " clear the presence_marks
+let g:presence_clear = 0 " don't clear the presence_marks
+let g:presence_clear = 1 " clear the presence_marks
 ```
 
 ## Usage
@@ -188,7 +188,7 @@ be.
 In Vim, start tracking your current session:
 
 ```vim
-    :Obsession ~/.vim/session/project-xyz.vim
+:Obsession ~/.vim/session/project-xyz.vim
 ```
 
 This will automatically track files, marks, and more, saving them to the
@@ -198,7 +198,7 @@ session file.
 
 Source a session-file from the command line:
 ```sh
-    vim -S ~/.vim/session/project-xyz.vim
+vim -S ~/.vim/session/project-xyz.vim
 ```
 This will open files from the session-file and restore the saved marks.
 
@@ -206,7 +206,7 @@ This will open files from the session-file and restore the saved marks.
 
 Alternatively, source a session-file from inside Vim:
 ```vim
-    :source ~/.vim/session/project-xyz.vim
+:source ~/.vim/session/project-xyz.vim
 ```
 This works the same as using the `-S` parameter - files and marks will be
 restored.
@@ -217,34 +217,34 @@ You can also use the Telescope extension, provided by vim-presence for easy
 session picking:
 
 ```lua
-    require("lazy").setup({
-        spec = {
-            {
-                "kimabrandt/vim-presence",
-                dependencies = {
-                    "tpope/vim-obsession",
-                    "nvim-telescope/telescope.nvim",
-                },
-                config = function()
-                    require("telescope").load_extension("presence")
-                end,
+require("lazy").setup({
+    spec = {
+        {
+            "kimabrandt/vim-presence",
+            dependencies = {
+                "tpope/vim-obsession",
+                "nvim-telescope/telescope.nvim",
             },
+            config = function()
+                require("telescope").load_extension("presence")
+            end,
         },
-    })
+    },
+})
 ```
 
 Open the Sessions picker with a keymap:
 
 ```lua
-    vim.keymap.set("n", "<A-s>", function()
-        require("telescope").extensions["presence"].sessions()
-    end)
+vim.keymap.set("n", "<A-s>", function()
+    require("telescope").extensions["presence"].sessions()
+end)
 ```
 
 Alternatively, with the command:
 
 ```vim
-    :Telescope presence sessions
+:Telescope presence sessions
 ```
 
 ### Jump to a global mark
@@ -252,19 +252,19 @@ Alternatively, with the command:
 With Vim:
 
 ```vim
-    nnoremap <A-j> `J
-    nnoremap <A-k> `K
-    nnoremap <A-l> `L
-    " and so on...
+nnoremap <A-j> `J
+nnoremap <A-k> `K
+nnoremap <A-l> `L
+" and so on...
 ```
 
 With Neovim:
 
 ```lua
-    vim.keymap.set("n", "<A-j>", "`J")
-    vim.keymap.set("n", "<A-k>", "`K")
-    vim.keymap.set("n", "<A-l>", "`L")
-    -- and so on...
+vim.keymap.set("n", "<A-j>", "`J")
+vim.keymap.set("n", "<A-k>", "`K")
+vim.keymap.set("n", "<A-l>", "`L")
+-- and so on...
 ```
 
 Hold `<Alt>` and effortlessly navigate to important locations in your project by
@@ -276,9 +276,9 @@ You can also jump to a mark using the provided Telescope extension. Load the
 extension as before and open the Marks picker with a keymap:
 
 ```lua
-    vim.keymap.set("n", "<A-m>", function()
-        require("telescope").extensions["presence"].marks()
-    end)
+vim.keymap.set("n", "<A-m>", function()
+    require("telescope").extensions["presence"].marks()
+end)
 ```
 
 # Functions
@@ -287,7 +287,7 @@ Functions, supported by this plugin, are described in the doc/presence.txt help
 file.
 
 ```vim
-    :h presence-functions
+:h presence-functions
 ```
 
 # License
