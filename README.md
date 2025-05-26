@@ -16,14 +16,16 @@ integrate it into your workflow.
 
 You can load session files as usual using the `-S` parameter when starting Vim,
 or with the `:source` command, after Vim has already started. Alternatively,
-with Neovim, you can use the included [Sessions picker](#sessions-picker), which
-first unloads all buffers before loading the session - useful when switching
-between contexts.
+with Neovim, you can use the included [Sessions
+picker](#for-neovim), which first unloads all buffers before
+loading the session - useful when switching between contexts.
 
-There's also a [Marks picker](#marks-picker) that lists your global marks in the
+There's also a [Marks picker](#for-neovim) that lists your global marks in the
 order defined by the [presence_marks](#g:presence_marks) variable.
 
-This README.md is a shortened version of the doc/presence.txt help file:
+This README.md is a shortened version of the
+[doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
+help file:
 
 ```vim
 :h presence.txt
@@ -168,7 +170,9 @@ By default, all marks (from A to Z) are taken into account. If you set
 any others will be ignored.
 
 You can also temporarily override this list using the marks option when
-launching the [Marks Picker](#marks-picker).
+launching the [Marks picker](#for-neovim). See the
+[doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
+for more info.
 
 ### g:presence_clear
 
@@ -283,8 +287,9 @@ end)
 
 # Functions
 
-Functions, supported by this plugin, are described in the doc/presence.txt help
-file.
+Functions, supported by this plugin, are described in the
+[doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
+help file.
 
 ```vim
 :h presence-functions
