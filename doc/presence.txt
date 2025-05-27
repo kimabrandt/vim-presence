@@ -165,18 +165,19 @@ session-file, and restored when loading the session-file.
 >vim
     let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
 <
-By default, all marks (from A to Z) are taken into account. If you set
-`g:presence_marks`, only the specified marks will be handled - any others will
+By default, all marks (from A to Z) are taken into account. If you set the
+|presence_marks| variable, only the specified marks will be handled - any others will
 be ignored.
 
 You can also temporarily override this list using the marks option when
 launching the Marks Picker (see |presence-marks-picker|).
 
-						 *presence_clear* *presence-clear*
+								*presence_clear*
 g:presence_clear ~
 
 This global variable tells the plugin to either clear the |presence_marks|
-list before restoring a session or leave it be.
+list before restoring a session or leave it be. The default is, to clear the
+marks list.
 >vim
     let g:presence_clear = 0 " don't clear the presence_marks
     let g:presence_clear = 1 " clear the presence_marks
@@ -375,7 +376,7 @@ session-files!
 
 After choosing a session-file from the picker, all currently opened buffers
 are being unloaded and the marks from the |presence_marks| variable will be
-deleted (unless the |g:presence_clear| variable is set to 0), before loading
+deleted (unless the |presence_clear| variable is set to 0), before loading
 the session. Files and marks, from the session-file, will now be available. If
 there're unsaved changes in a buffer, an error will be raised and the buffer
 that has the changes will be focused. 

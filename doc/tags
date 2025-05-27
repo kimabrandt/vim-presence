@@ -3,14 +3,12 @@ presence#add_global_mark_to_the_end_and_replace_last()	presence.txt	/*presence#a
 presence#delete_buffers_without_global_marks()	presence.txt	/*presence#delete_buffers_without_global_marks()*
 presence#delete_global_mark_and_shift_forward()	presence.txt	/*presence#delete_global_mark_and_shift_forward()*
 presence#remove_gaps_in_marks_list()	presence.txt	/*presence#remove_gaps_in_marks_list()*
-presence-clear	presence.txt	/*presence-clear*
 presence-config	presence.txt	/*presence-config*
 presence-contents	presence.txt	/*presence-contents*
 presence-functions	presence.txt	/*presence-functions*
 presence-install	presence.txt	/*presence-install*
 presence-intro	presence.txt	/*presence-intro*
 presence-license	presence.txt	/*presence-license*
-presence-marks	presence.txt	/*presence-marks*
 presence-marks-picker	presence.txt	/*presence-marks-picker*
 presence-quickstart	presence.txt	/*presence-quickstart*
 presence-sessions-picker	presence.txt	/*presence-sessions-picker*
