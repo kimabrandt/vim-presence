@@ -10,18 +10,18 @@ It works by adding upper case file-marks (global marks) to a
 [vim-obsession](https://github.com/tpope/vim-obsession#obsessionvim) plugin
 saves a session. The marks are then restored, when a session-file is loaded.
 
-Only the global marks listed in the [presence_marks](#g:presence_marks) variable
+Only the global marks listed in the [presence_marks](#gpresence_marks) variable
 are managed by this plugin. This gives you some flexibility in how to use it and
 integrate it into your workflow.
 
 You can load session files as usual using the `-S` parameter when starting Vim,
 or with the `:source` command, after Vim has already started. Alternatively,
-with Neovim, you can use the included [Sessions
-picker](#for-neovim), which first unloads all buffers before
-loading the session - useful when switching between contexts.
+with Neovim, you can use the included [Sessions picker](#for-neovim), which
+first unloads all buffers before loading the session - useful when switching
+between contexts.
 
 There's also a [Marks picker](#for-neovim) that lists your global marks in the
-order defined by the [presence_marks](#g:presence_marks) variable.
+order defined by the [presence_marks](#gpresence_marks) variable.
 
 This README.md is a shortened version of the
 [doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
@@ -33,8 +33,9 @@ help file:
 
 ## Installation
 
-The vim-presence plugin requires the vim-obsession plugin, so you need to
-install both.
+The [vim-presence](https://github.com/kimabrandt/vim-presence) plugin requires
+the [vim-obsession](https://github.com/tpope/vim-obsession#obsessionvim) plugin,
+so you need to install both.
 
 ### Using vim-pathogen ([tpope/vim-pathogen](https://github.com/tpope/vim-pathogen))
 
@@ -166,7 +167,7 @@ let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
 ```
 
 By default, all marks (from A to Z) are taken into account. If you set
-[presence_marks](#g:presence_marks), only the specified marks will be handled -
+[presence_marks](#gpresence_marks), only the specified marks will be handled -
 any others will be ignored.
 
 You can also temporarily override this list using the marks option when
@@ -177,8 +178,8 @@ for more info.
 ### g:presence_clear
 
 This global variable tells the plugin to either clear the
-[presence_marks](#g:presence_marks) list before restoring a session or leave it
-be.
+[presence_marks](#gpresence_marks) list before restoring a session or leave it
+be. The default is, to clear the marks list.
 
 ```vim
 let g:presence_clear = 0 " don't clear the presence_marks
