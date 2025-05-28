@@ -95,6 +95,7 @@ Plug 'kimabrandt/vim-presence'
 call plug#end()
 
 let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
+let g:presence_clear = 1 " clear the presence_marks
 nnoremap mm :call presence#add_global_mark_and_shift_backward()<cr>
 nnoremap me :call presence#add_global_mark_to_the_end_and_replace_last()<cr>
 nnoremap md :call presence#delete_global_mark_and_shift_forward()<cr>
