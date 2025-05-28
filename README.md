@@ -142,7 +142,8 @@ require("lazy").setup({
 
                 vim.keymap.set("n", "<A-s>", function() -- show the session files (with Telescope)
                     require("telescope").extensions["presence"].sessions({
-                        sessions_dir = "~/.vim/session"
+                        sessions_dir = "~/.vim/session",
+                        sort = "mtime"
                     })
                 end)
 
