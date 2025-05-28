@@ -138,7 +138,8 @@ Add this to your init.lua:
 
                     vim.keymap.set("n", "<A-s>", function() -- show the session files (with Telescope)
                         require("telescope").extensions["presence"].sessions({
-                            sessions_dir = "~/.vim/session"
+                            sessions_dir = "~/.vim/session",
+                            sort = "mtime"
                         })
                     end)
 
@@ -365,14 +366,18 @@ With Neovim, the included Sessions picker shows a list of session-files (see
 >lua
     vim.keymap.set("n", "<A-s>", function()
         require("telescope").extensions["presence"].sessions({
-            sessions_dir = "~/.vim/session"
+            sessions_dir = "~/.vim/session",
+	    sort = "mtime"
         })
     end)
 <
-The sessions_dir variable tells the picker where to look for session-files. By
-default it's set to ~/.vim/session. There's currently no check nor filter for
-valid session-files. So, make sure to only use a directory that contains
+The `sessions_dir` option tells the picker where to look for session-files. By
+default it's set to `~/.vim/session`. There's currently no check nor filter
+for valid session-files. So, make sure to only use a directory that contains
 session-files!
+
+The `sort` option orders the listed session-files. By default it's set to
+`mtime`. To order alphabetically (the fallback), set it to `sort = ""`.
 
 After choosing a session-file from the picker, all currently opened buffers
 are being unloaded and the marks from the |presence_marks| variable will be
