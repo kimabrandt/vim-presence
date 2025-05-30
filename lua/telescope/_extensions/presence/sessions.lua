@@ -1,9 +1,15 @@
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
+local make_entry = require("telescope.make_entry")
+local utils = require("telescope.utils")
+local entry_display = require("telescope.pickers.entry_display")
 local sorters = require("telescope.sorters")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
+local strings = require("plenary.strings")
 local path = require("plenary.path")
+
+local conf = require("telescope.config").values
 
 return function(opts)
   opts = opts or {}
@@ -28,20 +34,58 @@ return function(opts)
     end)
   end
 
+  local disable_devicons = opts.disable_devicons
+
+  local icon_width = 0
+  if not disable_devicons then
+    local icon, _ = utils.get_devicons("fname", disable_devicons)
+    icon_width = strings.strdisplaywidth(icon)
+  end
+
+  local displayer = entry_display.create({
+    separator = " ",
+    items = {
+      { width = icon_width },
+      { remaining = true },
+    },
+  })
+
+  local make_display = function(entry)
+    local display_bufname, path_style =
+      utils.transform_path(opts, entry.filename)
+    local icon, hl_group = utils.get_devicons(entry.filename, disable_devicons)
+
+    return displayer({
+      { icon, hl_group },
+      {
+        display_bufname,
+        function()
+          return path_style
+        end,
+      },
+    })
+  end
+
+  local gen_from_files = function(options)
+    return function(filename)
+      return make_entry.set_default_entry_mt({
+        value = filename,
+        ordinal = filename,
+        display = make_display,
+        filename = filename,
+      }, options)
+    end
+  end
+
   -- Create the picker.
   pickers
     .new(opts, {
       prompt_title = "Sessions",
       finder = finders.new_table({
         results = session_files,
-        entry_maker = function(entry)
-          return {
-            display = vim.fn.fnamemodify(entry, ":t"),
-            ordinal = entry,
-            value = entry,
-          }
-        end,
+        entry_maker = gen_from_files(opts),
       }),
+      previewer = conf.grep_previewer(opts),
       sorter = sorters.get_fuzzy_file(),
       attach_mappings = function(prompt_bufnr)
         actions.select_default:replace(function()
