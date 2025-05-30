@@ -24,12 +24,13 @@ return function(opts)
     -- only capital marks
     if mark:match("[A-Z]") then
       local _, lnum, col, _ = unpack(v.pos)
+      local file = vim.fn.fnamemodify(v.file, ":p")
       local row = {
-        line = string.format("%s %6d %4d %s", mark, lnum, col - 1, v.file),
+        line = string.format("%s %6d %4d %s", mark, lnum, col - 1, file),
         mark = mark,
         lnum = lnum,
         col = col,
-        filename = v.file,
+        filename = file,
       }
       table.insert(marks_table, row)
       if lnum > max_lnum then
