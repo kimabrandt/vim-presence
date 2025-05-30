@@ -1,12 +1,22 @@
 " Supported global variables:
 "
-"   let g:presence_marks = "JKLHGFDSA"  " List of marks that should be used when saving, clearing and restoring them.
-"   let g:presence_clear = 0            " Don't clear the marks - from the `g:presence_marks'-list - before restoring them.
-"   let g:presence_clear = 1            " Clear the marks - from the `g:presence_marks'-list - before restoring them.
+"   let g:presence_marks = "JKLHGFDSA"                   " List of marks that should be saved, cleared and restored.
+"   let g:presence_marks = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  " The default.
+"
+"   let g:presence_tracked = "JKLH"  " List of marks that should be tracked.
+"   let g:presence_tracked = ""      " The default.
+"
+"   let g:presence_clear = 0  " Don't clear existing marks, before restoring them.
+"   let g:presence_clear = 1  " The default. Clear existing marks, before restoring them.
 
 " Gets a list of supported global marks.
 function s:get_global_marks() abort
   return split(get(g:, 'presence_marks', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '\zs')
+endfunction
+
+" Gets a list of tracked global marks.
+function s:get_tracked_marks() abort
+  return split(get(g:, 'presence_tracked', ''), '\zs')
 endfunction
 
 " Saves global marks to the session-file.
@@ -87,10 +97,55 @@ function s:save_global_marks(session_file) abort
   call writefile(l:body, a:session_file)
 endfunction
 
-" Create an autocommand for saving the marks.
+" Keeps track of last tracked.
+let s:last_tracked = reltime()
+
+" Tracks global marks.
+function s:track_global_marks() abort
+  " Time in milliseconds
+  let l:now = reltime()
+  let l:elapsed = reltimefloat(reltime(s:last_tracked)) * 1000
+  if l:elapsed < 100
+    return
+  endif
+
+  " Update when last tracked.
+  let s:last_tracked = l:now
+
+  " Tracked global marks.
+  let l:tracked_marks = s:get_tracked_marks()
+
+  " Get the current file.
+  let l:current_file = expand('%:p')
+
+  " For all tracked marks.
+  for l:mark in l:tracked_marks
+    " Get the mark position.
+    let l:pos = getpos("'" . l:mark)
+    " Get the markfile.
+    let l:markfile = fnamemodify(bufname(l:pos[0]), ':p')
+    " If the markfile is the same as the current_file.
+    if fnamemodify(l:markfile, ':p') ==# l:current_file
+      " Set the mark at the current location.
+      execute "normal! m" . l:mark
+      return
+    endif
+  endfor
+endfunction
+
+" Create an autocommand for saving marks.
 augroup presence_save
   autocmd!
   autocmd User Obsession call s:save_global_marks(g:this_session)
+  " autocmd User Obsession call s:track_global_marks() | call s:save_global_marks(g:this_session)
+augroup END
+
+" Create an autocommand for tracking marks.
+augroup presence_track
+  autocmd!
+  autocmd BufLeave * call s:track_global_marks()
+  autocmd BufUnload * call s:track_global_marks()
+  autocmd VimLeavePre * call s:track_global_marks()
 augroup END
 
 " Pauses obsessions session-tracking.

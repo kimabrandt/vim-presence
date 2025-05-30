@@ -161,8 +161,9 @@ require("lazy").setup({
 
 ### g:presence_marks
 
-This global variable controls which global marks are tracked and saved in a
-session-file, and restored when loading the session-file.
+This global variable controls which global marks are being saved in a
+session-file, and cleared (when [presence_clear](#gpresence_clear) is used) and
+restored when loading the session-file.
 
 ```vim
 let g:presence_marks = "JKLHGFDSA" " home row keys (qwerty-layout)
@@ -176,6 +177,20 @@ You can also temporarily override this list using the marks option when
 launching the [Marks picker](#for-neovim). See the
 [doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
 for more info.
+
+### g:presence_tracked
+
+This global variable can be used to keep track of the latest cursor position
+inside a buffer for a list of global marks, when leaving a buffer or Vim itself.
+
+```vim
+let g:presence_tracked = "JKL" " track the last cursor position
+```
+
+By default this list is empty.
+
+Only the first found mark will be tracked, if multiple marks are used inside a
+buffer.
 
 ### g:presence_clear
 

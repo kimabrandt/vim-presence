@@ -16,3 +16,4 @@ presence-usage	presence.txt	/*presence-usage*
 presence.txt	presence.txt	/*presence.txt*
 presence_clear	presence.txt	/*presence_clear*
 presence_marks	presence.txt	/*presence_marks*
+presence_tracked	presence.txt	/*presence_tracked*
