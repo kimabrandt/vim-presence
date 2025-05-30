@@ -3,8 +3,8 @@ local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
 local actions = require("telescope._extensions.presence.actions")
 local utils = require("telescope.utils")
-local strings = require("plenary.strings")
 local entry_display = require("telescope.pickers.entry_display")
+local strings = require("plenary.strings")
 
 local conf = require("telescope.config").values
 
@@ -76,6 +76,30 @@ return function(opts)
     end
   end)
 
+  local file = vim.fn.fnamemodify(vim.fn.bufname(opts.bufnr), ":p")
+  for _, v in ipairs(vim.fn.getmarklist(opts.bufnr)) do
+    -- strip the first single quote character
+    local mark = string.sub(v.mark, 2, 3)
+    -- only lowercase marks
+    if mark:match("[a-z]") then
+      local _, lnum, col, _ = unpack(v.pos)
+      local row = {
+        line = string.format("%s %6d %4d %s", mark, lnum, col - 1, file),
+        mark = mark,
+        lnum = lnum,
+        col = col,
+        filename = file,
+      }
+      table.insert(marks_table, row)
+      if lnum > max_lnum then
+        max_lnum = lnum
+      end
+      if col > max_col then
+        max_col = col
+      end
+    end
+  end
+
   local disable_devicons = opts.disable_devicons
 
   local icon_width = 0
@@ -116,7 +140,7 @@ return function(opts)
     })
   end
 
-  local gen_from_marks = function(opts)
+  local gen_from_marks = function(options)
     return function(item)
       return make_entry.set_default_entry_mt({
         value = item.line,
@@ -126,7 +150,7 @@ return function(opts)
         lnum = item.lnum,
         col = item.col,
         filename = item.filename,
-      }, opts)
+      }, options)
     end
   end
 
@@ -138,12 +162,12 @@ return function(opts)
         entry_maker = gen_from_marks(opts),
       }),
       previewer = conf.grep_previewer(opts),
+      sorter = conf.generic_sorter(opts),
       attach_mappings = function(_, map)
-        map("i", "<c-d>", actions.delete_mark_selections)
-        map("n", "<c-d>", actions.delete_mark_selections)
+        map("i", "<c-d>", actions.delete_mark_selections(opts))
+        map("n", "<c-d>", actions.delete_mark_selections(opts))
         return true
       end,
-      sorter = conf.generic_sorter(opts),
       push_cursor_on_edit = true,
       push_tagstack_on_edit = true,
     })
