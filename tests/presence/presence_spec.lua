@@ -400,5 +400,33 @@ describe("presence.nvim", function()
     assert.are_equal(8, pos[3], "column should be 8")
   end)
 
-  -- -- TODO test function presence#delete_global_mark_and_shift_forward()
+  it("should delete global marks and shift forward", function()
+    vim.cmd([[
+      let g:presence_marks = "JKL"
+      let lines = []
+      call add(lines, 'first line')
+      call add(lines, 'second line')
+      call writefile(lines, '/tmp/presence_test/Test_5s51.txt') " create a test-file
+      edit /tmp/presence_test/Test_5s51.txt
+      call setpos("'J", [0, 1, 5, 0]) " create mark
+      call setpos("'K", [0, 1, 10, 0]) " create mark
+      call setpos("'L", [0, 2, 6, 0]) " create mark
+      call presence#delete_global_mark_and_shift_forward()
+    ]])
+
+    -- Test the position for mark J (was 'K).
+    pos = vim.fn.getpos("'J")
+    assert.are_equal(1, pos[2], "row should be 1")
+    assert.are_equal(10, pos[3], "column should be 10")
+
+    -- Test the position for mark K (was 'L).
+    pos = vim.fn.getpos("'K")
+    assert.are_equal(2, pos[2], "row should be 2")
+    assert.are_equal(6, pos[3], "column should be 6")
+
+    -- Test the position for mark L (should be unset).
+    pos = vim.fn.getpos("'L")
+    assert.are_equal(0, pos[2], "row should be 0")
+    assert.are_equal(0, pos[3], "column should be 0")
+  end)
 end)
