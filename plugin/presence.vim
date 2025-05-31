@@ -97,20 +97,20 @@ function s:save_global_marks(session_file) abort
   call writefile(l:body, a:session_file)
 endfunction
 
-" Keeps track of last tracked.
-let s:last_tracked = reltime()
+" " Keeps track of last tracked.
+" let s:last_tracked = reltime()
 
 " Tracks global marks.
 function s:track_global_marks() abort
-  " Time in milliseconds
-  let l:now = reltime()
-  let l:elapsed = reltimefloat(reltime(s:last_tracked)) * 1000
-  if l:elapsed < 100
-    return
-  endif
-
-  " Update when last tracked.
-  let s:last_tracked = l:now
+  " " Time in milliseconds
+  " let l:now = reltime()
+  " let l:elapsed = reltimefloat(reltime(s:last_tracked)) * 1000
+  " if l:elapsed < 100
+  "   return
+  " endif
+  "
+  " " Update when last tracked.
+  " let s:last_tracked = l:now
 
   " Tracked global marks.
   let l:tracked_marks = s:get_tracked_marks()
@@ -144,7 +144,7 @@ augroup END
 augroup presence_track
   autocmd!
   autocmd BufLeave * call s:track_global_marks()
-  autocmd BufUnload * call s:track_global_marks()
+  " autocmd BufUnload * call s:track_global_marks()
   autocmd VimLeavePre * call s:track_global_marks()
 augroup END
 
@@ -363,8 +363,19 @@ endfunction
 if exists('g:test_mode')
   " Export functions for testing.
 
-  function! TestInitialize() abort
-    let s:last_tracked = [0, 0] " allow tracking to trigger
+  function! TestResetGlobalMarks() abort
+    " let s:last_tracked = [0, 0] " allow tracking to trigger
+
+    " Unlet global variables.
+    if exists("g:presence_marks")
+      unlet g:presence_marks
+    endif
+    if exists("g:presence_tracked")
+      unlet g:presence_tracked
+    endif
+    if exists("g:presence_clear")
+      unlet g:presence_clear
+    endif
   endfunction
 
   function! TestGetGlobalMarks() abort
