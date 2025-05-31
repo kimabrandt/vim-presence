@@ -363,12 +363,24 @@ endfunction
 if exists('g:test_mode')
   " Export functions for testing.
 
+  function! TestInitialize() abort
+    let s:last_tracked = [0, 0] " allow tracking to trigger
+  endfunction
+
   function! TestGetGlobalMarks() abort
     return s:get_global_marks()
   endfunction
 
+  function! TestGetTrackedMarks() abort
+    return s:get_tracked_marks()
+  endfunction
+
   function! TestSaveGlobalMarks(session_file) abort
     call s:save_global_marks(a:session_file)
+  endfunction
+
+  function! TestTrackGlobalMarks() abort
+    call s:track_global_marks()
   endfunction
 
   function! TestCopyMark(old_mark, new_mark) abort
