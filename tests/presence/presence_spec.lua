@@ -45,6 +45,35 @@ describe("presence.nvim", function()
     )
   end)
 
+  it("should return tracked global marks", function()
+    vim.cmd([[
+      let g:test_mode = 1 " enable test-mode (export functions)
+      source plugin/presence.vim " load the plugin
+    ]])
+
+    -- Test the tracked marks.
+    local marks = vim.fn.TestGetTrackedMarks()
+    assert.are_equal(0, #marks, "marks should be 0 items")
+    assert.are_equal("", table.concat(marks, ""), "marks should be empty")
+  end)
+
+  it("should only return tracked marks", function()
+    vim.cmd([[
+      let g:test_mode = 1 " enable test-mode (export functions)
+      let g:presence_tracked = "JKL" " set tracked marks
+      source plugin/presence.vim " load the plugin
+    ]])
+
+    -- Test the tracked marks.
+    local marks = vim.fn.TestGetTrackedMarks()
+    assert.are_equal(3, #marks, "marks should only be 3 items")
+    assert.are_equal(
+      "JKL",
+      table.concat(marks, ""),
+      "marks should be equal to g:presence_tracked"
+    )
+  end)
+
   it("should save and restore global marks", function()
     vim.cmd([[
       let g:test_mode = 1 " enable test-mode (export functions)
@@ -67,7 +96,29 @@ describe("presence.nvim", function()
     assert.are_equal(7, pos[3], "column should be 7")
   end)
 
-  it("should trigger the autocommand and save the session", function()
+  it("should track global marks", function()
+    vim.cmd([[
+      let g:test_mode = 1 " enable test-mode (export functions)
+      let g:presence_tracked = "JKL" " set tracked marks
+      source plugin/presence.vim " load the plugin
+      let s:lines = []
+      call add(s:lines, 'first line')
+      call add(s:lines, 'second line')
+      call writefile(s:lines, '/tmp/presence_test/Test_y0xm.txt') " create a test-file
+      edit /tmp/presence_test/Test_y0xm.txt
+      call setpos("'J", [0, 1, 10, 0]) " set the position for mark J
+      call setpos(".", [0, 2, 6, 0]) " move the cursor position
+      call TestInitialize() " initialize for test
+      call TestTrackGlobalMarks() " track global marks
+    ]])
+
+    -- Test the position for mark J.
+    local pos = vim.fn.getpos("'J")
+    assert.are_equal(2, pos[2], "row should be 2")
+    assert.are_equal(6, pos[3], "column should be 6")
+  end)
+
+  it("should trigger the augroup presence_save and save the session", function()
     vim.cmd([[
       let g:test_mode = 1 " enable test-mode (export functions)
       source plugin/presence.vim " load the plugin
@@ -88,6 +139,27 @@ describe("presence.nvim", function()
     local pos = vim.fn.getpos("'J")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(5, pos[3], "column should be 5")
+  end)
+
+  it("should trigger the augroup presence_track and track the mark", function()
+    vim.cmd([[
+      let g:test_mode = 1 " enable test-mode (export functions)
+      source plugin/presence.vim " load the plugin
+      let s:lines = []
+      call add(s:lines, 'first line')
+      call add(s:lines, 'second line')
+      call writefile(s:lines, '/tmp/presence_test/Test_6zwg.txt') " create a test-file
+      edit /tmp/presence_test/Test_6zwg.txt
+      call setpos("'J", [0, 1, 2, 0]) " create mark
+      call setpos(".", [0, 2, 9, 0]) " move the cursor position
+      call TestInitialize() " initialize for test
+      doautocmd <nomodeline> presence_track BufLeave " trigger autocommand
+    ]])
+
+    -- Test the position for mark J.
+    local pos = vim.fn.getpos("'J")
+    assert.are_equal(2, pos[2], "row should be 2")
+    assert.are_equal(9, pos[3], "column should be 9")
   end)
 
   it("should pause obsessions session-tracking", function()
@@ -266,4 +338,8 @@ describe("presence.nvim", function()
       "buffer should be unloaded"
     )
   end)
+
+  -- TODO test function presence#remove_gaps_in_marks_list()
+  -- TODO test function presence#add_global_mark_to_the_end_and_replace_last()
+  -- TODO test function presence#delete_global_mark_and_shift_forward()
 end)
