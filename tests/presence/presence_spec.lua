@@ -332,32 +332,73 @@ describe("presence.nvim", function()
       call presence#remove_gaps_in_marks_list()
     ]])
 
-    -- Test the position for mark J, before adding.
+    -- Test the position for mark J (stays the same).
     local pos = vim.fn.getpos("'J")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(1, pos[3], "column should be 1")
 
-    -- Test the position for mark K (newly added).
+    -- Test the position for mark K (was 'G).
     pos = vim.fn.getpos("'K")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(2, pos[3], "column should be 2")
 
-    -- Test the position for mark L (newly added).
+    -- Test the position for mark L (was 'A).
     pos = vim.fn.getpos("'L")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(3, pos[3], "column should be 3")
 
-    -- Test the position for mark N (newly added).
+    -- Test the position for mark N (stays the same).
     pos = vim.fn.getpos("'N")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(4, pos[3], "column should be 4")
 
-    -- Test the position for mark U (newly added).
+    -- Test the position for mark U (stays the same).
     pos = vim.fn.getpos("'U")
     assert.are_equal(1, pos[2], "row should be 1")
     assert.are_equal(5, pos[3], "column should be 5")
   end)
 
-  -- -- TODO test function presence#add_global_mark_to_the_end_and_replace_last()
+  it("should add global mark to the end", function()
+    vim.cmd([[
+      let g:presence_marks = "JKLHGFDSA" " set home row marks
+      let lines = []
+      call add(lines, 'first line')
+      call add(lines, 'second line')
+      call writefile(lines, '/tmp/presence_test/Test_vnh4.txt') " create a test-file
+      edit /tmp/presence_test/Test_vnh4.txt
+      call setpos("'J", [0, 1, 1, 0]) " create mark
+      call setpos("'K", [0, 1, 1, 0]) " create mark
+      call setpos("'L", [0, 1, 1, 0]) " create mark
+      call setpos(".", [0, 2, 4, 0]) " set the cursor position
+      call presence#add_global_mark_to_the_end_and_replace_last()
+    ]])
+
+    -- Test the position for mark H (is now the last mark).
+    pos = vim.fn.getpos("'H")
+    assert.are_equal(2, pos[2], "row should be 2")
+    assert.are_equal(4, pos[3], "column should be 4")
+  end)
+
+  it("should add global mark to the end and replace last", function()
+    vim.cmd([[
+      let g:presence_marks = "JKL"
+      let lines = []
+      call add(lines, 'first line')
+      call add(lines, 'second line')
+      call writefile(lines, '/tmp/presence_test/Test_vnh4.txt') " create a test-file
+      edit /tmp/presence_test/Test_vnh4.txt
+      call setpos("'J", [0, 1, 1, 0]) " create mark
+      call setpos("'K", [0, 1, 1, 0]) " create mark
+      call setpos("'L", [0, 1, 1, 0]) " create mark
+      call setpos(".", [0, 2, 8, 0]) " set the cursor position
+      call presence#add_global_mark_to_the_end_and_replace_last()
+    ]])
+
+    -- Test the position for mark L (is the last mark).
+    pos = vim.fn.getpos("'L")
+    assert.are_equal(2, pos[2], "row should be 2")
+    assert.are_equal(8, pos[3], "column should be 8")
+  end)
+
   -- -- TODO test function presence#delete_global_mark_and_shift_forward()
 end)
