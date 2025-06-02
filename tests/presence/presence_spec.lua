@@ -107,6 +107,23 @@ describe("presence.nvim", function()
     assert.are_equal(6, pos[3], "column should be 6")
   end)
 
+  it("should ignore nonexistent mark", function()
+    vim.cmd([[
+      let g:presence_tracked = "JKL" " set tracked marks
+      let s:lines = []
+      call add(s:lines, 'first line')
+      call add(s:lines, 'second line')
+      call writefile(s:lines, '/tmp/presence_test/Test_65y3.txt') " create a test-file
+      edit /tmp/presence_test/Test_65y3.txt
+      call TestTrackGlobalMarks() " track global marks
+    ]])
+
+    -- Test the position for mark J.
+    local pos = vim.fn.getpos("'J") -- nonexistent mark
+    assert.are_equal(0, pos[2], "row should be 0")
+    assert.are_equal(0, pos[3], "column should be 0")
+  end)
+
   it("should trigger the augroup presence_save and save the session", function()
     vim.cmd([[
       let s:lines = []
