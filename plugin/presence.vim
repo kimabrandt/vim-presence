@@ -122,6 +122,10 @@ function s:track_global_marks() abort
   for l:mark in l:tracked_marks
     " Get the mark position.
     let l:pos = getpos("'" . l:mark)
+    if l:pos[0] == 0
+      " Ignore nonexistent mark.
+      continue
+    endif
     " Get the markfile.
     let l:markfile = fnamemodify(bufname(l:pos[0]), ':p')
     " If the markfile is the same as the current_file.
