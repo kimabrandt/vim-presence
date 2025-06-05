@@ -22,8 +22,9 @@ whenever the |obsession| plugin saves a session. The marks are then restored,
 when a session-file is loaded.
 
 Only the global marks listed in the |presence_marks| variable are managed by
-this plugin. This gives you some flexibility in how to use it and integrate it
-into your workflow.
+this plugin. This gives you some flexibility in how to use it and integrate
+into your workflow. Managed marks can automatically be updated after leaving a
+buffer or Vim itself, by using the |presence_tracked| variable.
 
 You can load session files as usual using the `-S` parameter when starting
 Vim, or with the `:source` command, after Vim has already started.
@@ -187,6 +188,9 @@ By default this list is empty.
 
 Only the first found mark will be tracked, if multiple marks are used inside
 a buffer.
+
+`[!]` Try using local marks when automatically tracking global marks.
+
 								*presence_clear*
 g:presence_clear ~
 
@@ -218,6 +222,9 @@ Source a session-file from the command line:
     vim -S ~/.vim/session/project-xyz.vim
 <
 This will open files from the session-file and restore the saved marks.
+
+`[!]` Create an `*x.vim` file when you want to run extra commands and set
+options for a session. See |mksession| (10. If a file exists with...).
 
 Load a session from inside Vim ~
 
@@ -402,9 +409,9 @@ that has the changes will be focused.
 
 Marks picker ~
 							 *presence-marks-picker*
-Again with Neovim, the included Marks picker shows a list of global marks.
-They're listed in the order of the |presence_marks| variable, followed by the
-rest of the global marks, in alphabetical order.
+Again with Neovim, the included Marks picker shows a list of global and local
+marks. They're listed in the order of the |presence_marks| variable, followed
+by the rest of the marks, in alphabetical order.
 >lua
     vim.keymap.set("n", "<A-m>", function()
         require("telescope").extensions["presence"].marks({
