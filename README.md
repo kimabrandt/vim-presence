@@ -12,7 +12,9 @@ saves a session. The marks are then restored, when a session-file is loaded.
 
 Only the global marks listed in the [presence_marks](#gpresence_marks) variable
 are managed by this plugin. This gives you some flexibility in how to use it and
-integrate it into your workflow.
+integrate into your workflow. Managed marks can automatically be updated after
+leaving a buffer or Vim itself, by using the
+[presence_tracked](#gpresence_tracked) variable.
 
 You can load session files as usual using the `-S` parameter when starting Vim,
 or with the `:source` command, after Vim has already started. Alternatively,
@@ -192,6 +194,8 @@ By default this list is empty.
 Only the first found mark will be tracked, if multiple marks are used inside a
 buffer.
 
+`[!]` Try using local marks when automatically tracking global marks.
+
 ### g:presence_clear
 
 This global variable tells the plugin to either clear the
@@ -223,6 +227,11 @@ Source a session-file from the command line:
 vim -S ~/.vim/session/project-xyz.vim
 ```
 This will open files from the session-file and restore the saved marks.
+
+`[!]` Create an `*x.vim` file when you want to run extra commands and set
+options for a session. See
+[mksession](https://vimhelp.org/starting.txt.html#%3Amksession) (10. If a file
+exists with...).
 
 ### Load a session from inside Vim
 
