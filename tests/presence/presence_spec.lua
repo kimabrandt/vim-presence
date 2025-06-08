@@ -7,16 +7,20 @@
 --     $ make test
 
 describe("presence.nvim", function()
+  -- Initialize the plugin.
+  vim.cmd([[
+    let g:test_mode = 1 " enable test-mode (export functions)
+    source plugin/presence.vim " load the plugin
+  ]])
+
   before_each(function()
     -- Create the test-directory.
     os.execute("mkdir -p /tmp/presence_test")
 
-    -- Reset test-environment.
+    -- Reset the test-environment.
     vim.cmd([[
       delmarks A-Z " delete global marks
-      let g:test_mode = 1 " enable test-mode (export functions)
-      source plugin/presence.vim " load the plugin
-      call TestResetGlobalMarks() " reset global marks
+      call TestResetGlobalVariables() " reset global variables
     ]])
   end)
 

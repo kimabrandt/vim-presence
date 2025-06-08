@@ -3,8 +3,8 @@
 "   let g:presence_marks = "JKLHGFDSA"                   " List of marks that should be saved, cleared and restored.
 "   let g:presence_marks = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  " The default.
 "
-"   let g:presence_tracked = "JKLH"  " List of marks that should be tracked.
-"   let g:presence_tracked = ""      " The default.
+"   let g:presence_tracked = "JKL"  " List of marks that should be tracked.
+"   let g:presence_tracked = ""     " The default.
 "
 "   let g:presence_clear = 0  " Don't clear existing marks, before restoring them.
 "   let g:presence_clear = 1  " The default. Clear existing marks, before restoring them.
@@ -367,7 +367,7 @@ endfunction
 if exists('g:test_mode')
   " Export functions for testing.
 
-  function! TestResetGlobalMarks() abort
+  function! TestResetGlobalVariables() abort
     " let s:last_tracked = [0, 0] " allow tracking to trigger
 
     " Unlet global variables.
