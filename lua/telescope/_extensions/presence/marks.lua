@@ -15,14 +15,14 @@ return function(opts)
     opts.bufnr = vim.api.nvim_get_current_buf()
   end
 
+  -- Add capital marks to the marks table.
   local max_lnum = 1
   local max_col = 1
   local marks_table = {}
   for _, v in ipairs(vim.fn.getmarklist()) do
-    -- strip the first single quote character
+    -- Strip the first single quote character.
     local mark = string.sub(v.mark, 2, 3)
-    -- only capital marks
-    if mark:match("[A-Z]") then
+    if mark:match("[A-Z]") then -- global mark
       local _, lnum, col, _ = unpack(v.pos)
       local file = vim.fn.fnamemodify(v.file, ":p")
       local row = {
@@ -42,6 +42,7 @@ return function(opts)
     end
   end
 
+  -- Returns the list of presence marks.
   local get_marks_order = function()
     local mark_list = opts.marks
       or vim.g.presence_marks
@@ -53,6 +54,7 @@ return function(opts)
     return marks
   end
 
+  -- Gives the index for the value inside the array.
   local index_of = function(array, value)
     for i, v in ipairs(array) do
       if v == value then
@@ -76,12 +78,12 @@ return function(opts)
     end
   end)
 
+  -- Add local marks from the current buffer to the marks table.
   local file = vim.fn.fnamemodify(vim.fn.bufname(opts.bufnr), ":p")
   for _, v in ipairs(vim.fn.getmarklist(opts.bufnr)) do
-    -- strip the first single quote character
+    -- Strip the first single quote character.
     local mark = string.sub(v.mark, 2, 3)
-    -- only lowercase marks
-    if mark:match("[a-z]") then
+    if mark:match("[a-z]") then -- lowercase marks
       local _, lnum, col, _ = unpack(v.pos)
       local row = {
         line = string.format("%s %6d %4d %s", mark, lnum, col - 1, file),
