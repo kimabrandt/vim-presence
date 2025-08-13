@@ -9,6 +9,12 @@
 "   let g:presence_clear = 0  " Don't clear existing marks, before restoring them.
 "   let g:presence_clear = 1  " The default. Clear existing marks, before restoring them.
 
+" Prevent (re)loading the plugin.
+if exists("g:loaded_presence") || &cp
+  finish
+endif
+let g:loaded_presence = 1
+
 " Gets a list of supported global marks.
 function s:get_global_marks() abort
   return split(get(g:, 'presence_marks', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '\zs')
