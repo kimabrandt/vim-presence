@@ -312,8 +312,40 @@ function presence#add_global_mark_and_shift_backward() abort
     call s:copy_mark(l:global_marks[l:i - 1], l:global_marks[l:i])
   endfor
 
-  " Add the new mark, to the front.
+  " Add the mark at the front.
   execute "normal! m" . l:global_marks[0]
+endfunction
+
+" Adds a global mark and shifts backward existing ones.
+function presence#insert_global_mark_and_shift_backward(mark, position, insert_after) abort
+  let l:insert_after = a:insert_after
+
+  " Supported global marks.
+  let l:global_marks = s:get_global_marks()
+
+  " The initial mark where insertion begins.
+  let l:current_mark = l:global_marks[0]
+
+  " For all marks, in reverse order.
+  for l:i in range(len(l:global_marks) - 1, 0, -1)
+    let l:previous_mark = l:global_marks[l:i - 1]
+    let l:current_mark = l:global_marks[l:i]
+
+    " Check if the a:mark should be inserted.
+    let l:should_insert_before = l:insert_after == 0 && a:mark == l:current_mark
+    let l:should_insert_after = l:insert_after == 1 && a:mark == l:previous_mark
+    if l:should_insert_before || l:should_insert_after
+      " Set the position of the mark.
+      call setpos("'" . l:current_mark, a:position)
+      return
+    endif
+
+    " Move the mark from the front to the back.
+    call s:copy_mark(l:previous_mark, l:current_mark)
+  endfor
+
+  " Set the position of the mark at the front.
+  call setpos("'" . l:current_mark, a:position)
 endfunction
 
 " Adds a global mark to the end and potentially replaces the last one.

@@ -114,7 +114,7 @@ Add this to your init.lua:
                 },
                 config = function()
                     vim.g.presence_marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
-		    vim.g.presence_clear = 1 -- clear the presence_marks
+                    vim.g.presence_clear = 1 -- clear the presence_marks
 
                     vim.keymap.set("n", "mm", function() -- assign the current text-position to the highest priority mark
                         vim.cmd("call presence#add_global_mark_and_shift_backward()")
@@ -388,7 +388,7 @@ With Neovim, the included Sessions picker shows a list of session-files (see
     vim.keymap.set("n", "<A-s>", function()
         require("telescope").extensions["presence"].sessions({
             sessions_dir = "~/.vim/session",
-	    sort = "mtime"
+            sort = "mtime"
         })
     end)
 <
@@ -414,13 +414,25 @@ marks. They're listed in the order of the |presence_marks| variable, followed
 by the rest of the marks, in alphabetical order.
 >lua
     vim.keymap.set("n", "<A-m>", function()
+	local actions = require("telescope._extensions.presence.actions")
+	local opts = {
+	    bufnr = vim.api.nvim_get_current_buf(),
+	}
         require("telescope").extensions["presence"].marks({
-            marks = "JKLHGFDSA" -- home row keys (qwerty-layout)
+            attach_mappings = function(_, map)
+                map({ "i", "n" }, "<M-d>", actions.delete_mark_selections(opts))
+                map({ "i", "n" }, "<M-P>", actions.paste_mark_selections(opts, 0)) -- 0: before
+                map({ "i", "n" }, "<M-p>", actions.paste_mark_selections(opts, 1)) -- 1: after
+                return true
+            end,
+            marks = "JKLHGFDSA", -- home row keys (qwerty-layout)
         })
     end)
 <
-When a mark is chosen, it's jumped to. Marks can be deleted with CTRL-d from
-the picker. 
+When a mark is chosen, it's jumped to. The `attach_mappings`-option lets you
+assign the actions: `delete_mark_selections` (to delete the selected marks)
+and `paste_mark_selections` (to paste the previously deleted marks), either
+before or after the current cursor position.
 
 The `marks`-option overrides the |presence_marks| variable.
 
