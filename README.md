@@ -223,9 +223,11 @@ session file.
 ### Load a session from the terminal
 
 Source a session-file from the command line:
+
 ```sh
 vim -S ~/.vim/session/project-xyz.vim
 ```
+
 This will open files from the session-file and restore the saved marks.
 
 `[!]` Create an `*x.vim` file when you want to run extra commands and set
@@ -236,9 +238,11 @@ exists with...).
 ### Load a session from inside Vim
 
 Alternatively, source a session-file from inside Vim:
+
 ```vim
 :source ~/.vim/session/project-xyz.vim
 ```
+
 This works the same as using the `-S` parameter - files and marks will be
 restored.
 
@@ -316,7 +320,7 @@ end)
 
 Functions, supported by this plugin, are described in the
 [doc/presence.txt](https://github.com/kimabrandt/vim-presence/blob/main/doc/presence.txt)
-help file.
+help file; together with some extra examples for the Telescope pickers.
 
 ```vim
 :h presence-functions
