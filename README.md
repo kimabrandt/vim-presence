@@ -84,6 +84,17 @@ require("lazy").setup({
 })
 ```
 
+### Using vim.pack (Neovim's built-in plugin manager)
+
+Add this to your init.lua:
+
+```lua
+vim.pack.add({
+    "https://github.com/tpope/vim-obsession",
+    "https://github.com/kimabrandt/vim-presence",
+})
+```
+
 ## Quickstart
 
 ### For Vim
