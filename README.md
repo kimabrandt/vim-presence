@@ -71,6 +71,41 @@ Plug 'kimabrandt/vim-presence'
 call plug#end()
 ```
 
+### Manual installation (Vim 8+ native packages, no plugin manager)
+
+Clone both repositories into a package directory.
+
+With Vim:
+
+```sh
+mkdir -p ~/.vim/pack/plugins/start
+cd ~/.vim/pack/plugins/start
+git clone https://github.com/tpope/vim-obsession.git
+git clone https://github.com/kimabrandt/vim-presence.git
+```
+
+With Neovim:
+
+```sh
+mkdir -p ~/.config/nvim/pack/plugins/start
+cd ~/.config/nvim/pack/plugins/start
+git clone https://github.com/tpope/vim-obsession.git
+git clone https://github.com/kimabrandt/vim-presence.git
+```
+
+Then generate the help tags:
+
+```vim
+:helptags ALL
+```
+
+To update the plugins later, pull the changes:
+
+```sh
+git -C <package-dir>/vim-obsession pull
+git -C <package-dir>/vim-presence pull
+```
+
 ### Using lazy.nvim ([folke/lazy.nvim](https://github.com/folke/lazy.nvim))
 
 Add this plugin spec to your init.lua:
